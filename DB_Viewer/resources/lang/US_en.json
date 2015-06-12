@@ -1,0 +1,51 @@
+{
+    "S:title" : "DBP/2 - Database Viewer",
+    "S:newconnection" : "New Connection",
+    "url" :
+    {
+        "E:malformed" : "The URL is malformed.",
+        "E:port" : "Invalid port!",
+        "E:empty" : "Fields cannot be left empty!"
+    },
+    "connectionservice" :
+    {
+    	"E:duplicate" : "There is already a connection with that name!"
+    },
+    "establish" :
+    {
+        "B:connect" : "Connect",
+        "B:test" : "Test",
+    	"S:name" : "Name:",
+    	"S:server" : "Server:",
+    	"S:port" : "Port:",
+    	"S:instance" : "SID:",
+    	"S:user" : "User:",
+    	"S:password" : "Password:",
+    	"test" :
+    	{
+    	    "S:initialization" : "Testing connection ...",
+    	    "S:connect" : "Connecting ...",
+    	    "S:success" : "Success!",
+    	    "S:failure" : "Failure."
+    	},
+    	"failure" :
+    	{
+    	    "E:network" : "Network failure.",
+    	    "E:credentials" : "Invalid credentials.",
+    	    "E:timeout" : "Connection timed out.",
+    	    "E:sid" : "Invalid SID",
+    	    "E:unknown" : "An unknown error occured."
+    	}
+    },
+    "connection" :
+    {
+        "S:default" : "Connection"
+    },
+    "E:errortitle" : "Connection Error",
+    "E:connectivity" : "Couldn't connect. Try again later.",
+    "C:default" : "#000000",
+    "C:success" : "#008800",
+    "C:failure" : "#ff0000",
+    "C:info"    : "#0000ff"
+}
+
