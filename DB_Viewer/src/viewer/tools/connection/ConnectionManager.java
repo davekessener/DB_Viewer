@@ -22,8 +22,8 @@ public class ConnectionManager
     
     private void connect(String id)
     {
-        connected_.init(id);
         ui_.setContent(connected_.getUI());
+        connected_.init(id);
     }
     
     private void registerHandlers()

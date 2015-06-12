@@ -7,6 +7,7 @@ import org.junit.Test;
 import viewer.literals.Password;
 import viewer.literals.Relation;
 import viewer.literals.URL;
+import viewer.materials.Connection;
 
 public class ConnectionServiceTest
 {
@@ -23,7 +24,7 @@ public class ConnectionServiceTest
             
             id = service.establishConnection(id, haw, user, password).get();
             
-            Future<String> f = service.register(id, c -> 
+            Future<String> f = service.register(id, (Connection c) -> 
             {
                 Relation r = c.query("SELECT Nachname FROM Kunde WHERE Vorname = 'Daiki'");
                 
@@ -39,6 +40,10 @@ public class ConnectionServiceTest
             String r = f.get();
             
             System.out.println("\n" + r);
+        }
+        catch(RuntimeException e)
+        {
+            e.printStackTrace(); throw e;
         }
         catch(Exception e)
         {

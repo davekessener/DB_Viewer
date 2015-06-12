@@ -11,6 +11,7 @@ import java.util.Map;
 import viewer.exception.ConnectionFailureException;
 import viewer.literals.Relation;
 import viewer.literals.URL;
+import viewer.service.Logger;
 
 public class Connection
 {
@@ -37,6 +38,8 @@ public class Connection
         {
             throw new ConnectionFailureException(GetFailure(e.getErrorCode()));
         }
+        
+        Logger.Log("Connection %d established (%s@%s).", id_, user, url.toString());
     }
     
     public int getID() { return id_; }
@@ -75,6 +78,8 @@ public class Connection
             }
         }
         catch(ConnectionFailureException | SQLException e) { }
+        
+        Logger.Log("Disconnected line %d.", id_);
     }
     
     public synchronized Relation query(String query) throws ConnectionFailureException

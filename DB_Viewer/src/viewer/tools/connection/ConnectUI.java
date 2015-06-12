@@ -66,7 +66,7 @@ class ConnectUI
         addLabel(grid, Strings.S_ESTABLISH_NAME, 0, 0);
         addLabel(grid, Strings.S_ESTABLISH_SERVER, 0, 1);
         addLabel(grid, Strings.S_ESTABLISH_USER, 0, 2);
-        addLabel(grid, Strings.S_ESTABLISH_INSTANCE, 2, 0);
+        addLabel(grid, Strings.S_ESTABLISH_SID, 2, 0);
         addLabel(grid, Strings.S_ESTABLISH_PORT, 2, 1);
 
         grid.add(name_ = new TextField(), 1, 0);

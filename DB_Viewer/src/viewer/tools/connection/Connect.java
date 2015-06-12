@@ -48,12 +48,12 @@ public class Connect
 
     private void test()
     {
-        indicatorActivity(Strings.S_ESTABLISH_TEST_INITIALIZATION, Strings.C_DEFAULT, () -> doTestConnection());
+        indicatorActivity(Strings.S_INFO_CONNECTION_INITIALIZATION, Strings.C_DEFAULT, () -> doTestConnection());
     }
 
     private void connect()
     {
-        indicatorActivity(Strings.S_ESTABLISH_TEST_CONNECT, Strings.C_DEFAULT, () -> doConnect());
+        indicatorActivity(Strings.S_INFO_CONNECTION_CONNECT, Strings.C_DEFAULT, () -> doConnect());
     }
     
     private void indicatorActivity(String s, String c, VoidTask t)
@@ -89,12 +89,12 @@ public class Connect
         if(service_.doTestConnection(getURL(), ui_.getUser(), ui_.getPassword()))
         {
             indicator_.setColor(Strings.C_SUCCESS);
-            indicator_.setInfo(Strings.S_ESTABLISH_TEST_SUCCESS);
+            indicator_.setInfo(Strings.S_INFO_SUCCESS);
         }
         else
         {
             indicator_.setColor(Strings.C_FAILURE);
-            indicator_.setInfo(Strings.S_ESTABLISH_TEST_FAILURE);
+            indicator_.setInfo(Strings.S_INFO_FAILURE);
         }
     }
     
@@ -110,7 +110,7 @@ public class Connect
         final String id = service_.doEstablishConnection(name, getURL(), user, password);
         
         indicator_.setColor(Strings.C_SUCCESS);
-        indicator_.setInfo(Strings.S_CONNECTION_ESTABLISHED);
+        indicator_.setInfo(Strings.S_INFO_CONNECTION_ESTABLISHED);
         indicator_.setEnabled(true);
         
         Platform.runLater(() -> onConnect_.act(id));

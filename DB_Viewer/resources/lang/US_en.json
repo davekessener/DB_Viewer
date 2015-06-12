@@ -1,6 +1,19 @@
 {
     "S:title" : "DBP/2 - Database Viewer",
     "S:newconnection" : "New Connection",
+    "info" :
+    {
+    	"connection" :
+    	{
+    	    "S:initialization" : "Testing ...",
+    	    "S:connect" : "Connecting ...",
+            "S:established" : "Connection established.",
+            "S:disconnected" : "Connection closed.",
+            "S:loading" : "Loading ..."
+    	},
+    	"S:success" : "Success!",
+    	"S:failure" : "Failure."
+    },
     "url" :
     {
         "E:malformed" : "The URL is malformed.",
@@ -18,16 +31,9 @@
     	"S:name" : "Name:",
     	"S:server" : "Server:",
     	"S:port" : "Port:",
-    	"S:instance" : "SID:",
+    	"S:sid" : "SID:",
     	"S:user" : "User:",
     	"S:password" : "Password:",
-    	"test" :
-    	{
-    	    "S:initialization" : "Testing connection ...",
-    	    "S:connect" : "Connecting ...",
-    	    "S:success" : "Success!",
-    	    "S:failure" : "Failure."
-    	},
     	"failure" :
     	{
     	    "E:network" : "Network failure.",
@@ -39,9 +45,7 @@
     },
     "connection" :
     {
-        "S:default" : "Connection",
-        "S:established" : "Connection established.",
-        "S:disconnected" : "Connection closed."
+        "S:default" : "Connection"
     },
     "E:errortitle" : "Connection Error",
     "E:connectivity" : "Couldn't connect. Try again later.",

@@ -85,14 +85,19 @@ public class ConnectionService implements AutoCloseable
     {
         return cons_.containsKey(name);
     }
-    
-    public <T> Future<T> register(String name, ConnectionTask<T> task)
+
+    public Future<Void> register(String id, VoidConnectionTask task)
     {
-            assert knowsConnection(name) : "Precondition violated: knowsConnection(name)";
-            
-            Connection c = cons_.get(name);
-            
-            return register(() -> task.execute(c));
+        return register(id, (Connection c) -> { task.execute(c); return Void.Return(); });
+    }
+    
+    public <T> Future<T> register(String id, ConnectionTask<T> task)
+    {
+        assert knowsConnection(id) : "Precondition violated: knowsConnection(name)";
+        
+        Connection c = cons_.get(id);
+        
+        return register(() -> task.execute(c));
     }
     
     public Future<Void> register(VoidTask task)
@@ -108,8 +113,6 @@ public class ConnectionService implements AutoCloseable
         
         return new Future<T>(p);
     }
-    
-    public static interface ConnectionTask<T> { T execute(Connection c) throws ConnectionFailureException; }
 
     @Override
     public void close() throws Exception
