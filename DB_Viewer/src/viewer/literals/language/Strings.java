@@ -33,8 +33,10 @@ public class Strings
     public static final String S_ESTABLISH_TEST_CONNECT = "string:establish.test.connect";
     public static final String S_ESTABLISH_TEST_SUCCESS = "string:establish.test.success";
     public static final String S_ESTABLISH_TEST_FAILURE = "string:establish.test.failure";
-    
+
     public static final String S_CONNECTION_DEFAULT = "string:connection.default";
+    public static final String S_CONNECTION_ESTABLISHED = "string:connection.established";
+    public static final String S_CONNECTION_DISCONNECTED = "string:connection.disconnected";
 
     public static final String C_DEFAULT = "color:default";
     public static final String C_SUCCESS = "color:success";

@@ -39,7 +39,9 @@
     },
     "connection" :
     {
-        "S:default" : "Connection"
+        "S:default" : "Connection",
+        "S:established" : "Connection established.",
+        "S:disconnected" : "Connection closed."
     },
     "E:errortitle" : "Connection Error",
     "E:connectivity" : "Couldn't connect. Try again later.",
