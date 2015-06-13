@@ -1,5 +1,7 @@
 package viewer.tools.connection;
 
+import viewer.exception.URLException;
+import viewer.literals.URL;
 import viewer.literals.language.Literals;
 import viewer.literals.language.Strings;
 import viewer.tools.ui.NumericField;
@@ -24,7 +26,7 @@ import javafx.scene.layout.RowConstraints;
 class ConnectUI
 {
     private Node pane_;
-    private Button connect_, test_;
+    private Button cancel_, connect_, test_;
     private TextField name_, server_, sid_, user_, password_;
     private NumericField port_;
     
@@ -54,6 +56,11 @@ class ConnectUI
         connect_.setOnAction(h);
     }
     
+    public void registerCancel(EventHandler<ActionEvent> h)
+    {
+        cancel_.setOnAction(h);
+    }
+    
     public void registerTest(EventHandler<ActionEvent> h)
     {
         test_.setOnAction(h);
@@ -62,19 +69,25 @@ class ConnectUI
     private Node createUI()
     {
         GridPane grid = new GridPane();
+        int row = 0;
         
         configureGrid(grid);
         
-        addLabel(grid, Strings.S_ESTABLISH_NAME, 0, 0);
-        addLabel(grid, Strings.S_ESTABLISH_SERVER, 0, 1);
-        addLabel(grid, Strings.S_ESTABLISH_USER, 0, 2);
-        addLabel(grid, Strings.S_ESTABLISH_SID, 2, 0);
-        addLabel(grid, Strings.S_ESTABLISH_PORT, 2, 1);
+        addLabel(grid, Strings.S_ESTABLISH_NAME, 0, row);
+        addLabel(grid, Strings.S_ESTABLISH_SID, 2, row);
 
-        grid.add(name_ = new TextField(), 1, 0);
-        grid.add(sid_ = new TextField(), 3, 0);
-        grid.add(server_ = new TextField(), 1, 1);
-        grid.add(port_ = new NumericField(), 3, 1);
+        grid.add(name_ = new TextField(), 1, row);
+        grid.add(sid_ = new TextField(), 3, row);
+        
+        ++row;
+        
+        addLabel(grid, Strings.S_ESTABLISH_SERVER, 0, row);
+        addLabel(grid, Strings.S_ESTABLISH_PORT, 2, row);
+
+        grid.add(server_ = new TextField(), 1, row);
+        grid.add(port_ = new NumericField(), 3, row);
+        
+        ++row;
 
         sid_.setMinWidth(20);
         sid_.setPrefWidth(80);
@@ -85,13 +98,18 @@ class ConnectUI
         
         if(Literals.DEBUG)
         {
-            server_.setText("http://ora14.informatik.haw-hamburg.de/");
-            port_.setText("1521");
-            sid_.setText("inf14");
+            doDebugWork(grid);
+            
+            ++row;
         }
 
-        grid.add(createUserPassword(), 1, 2, 3, 1);
-        grid.add(createButtons(), 0, 3, 4, 1);
+        addLabel(grid, Strings.S_ESTABLISH_USER, 0, row);
+
+        grid.add(createUserPassword(), 1, row, 3, 1);
+        
+        ++row;
+        
+        grid.add(createButtons(), 0, row, 4, 1);
         
         connect_.defaultButtonProperty().bind(connect_.focusedProperty());
 
@@ -119,6 +137,7 @@ class ConnectUI
 
         pane.getChildren().add(test_ = new Button(Literals.Get(Strings.B_ESTABLISH_TEST)));
         pane.getChildren().add(connect_ = new Button(Literals.Get(Strings.B_ESTABLISH_CONNECT)));
+        pane.getChildren().add(cancel_ = new Button(Literals.Get(Strings.B_ESTABLISH_CANCEL)));
         
         return pane;
     }
@@ -166,6 +185,37 @@ class ConnectUI
         grid.getRowConstraints().add(new RowConstraints());
         grid.getRowConstraints().add(new RowConstraints());
         grid.getRowConstraints().add(new RowConstraints());
+        if(Literals.DEBUG) grid.getRowConstraints().add(new RowConstraints());
         grid.getRowConstraints().add(rc);
+    }
+    
+    private void doDebugWork(GridPane grid)
+    {
+        server_.setText("http://ora14.informatik.haw-hamburg.de/");
+        port_.setText("1521");
+        sid_.setText("inf14");
+        
+        TextField debug = new TextField();
+        Runnable updateDebugField = () ->
+        {
+            try
+            {
+                debug.setText(URL.Get(server_.getText(), port_.getValue(), sid_.getText()).toString());
+            }
+            catch(URLException e)
+            {
+                debug.setText("---");
+            }
+        };
+        
+        debug.setEditable(false);
+        
+        grid.add(debug, 0, 2, 4, 1);
+
+        server_.textProperty().addListener((ob, o, n) -> updateDebugField.run());
+        port_.textProperty().addListener((ob, o, n) -> updateDebugField.run());
+        sid_.textProperty().addListener((ob, o, n) -> updateDebugField.run());
+        
+        updateDebugField.run();
     }
 }

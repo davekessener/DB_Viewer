@@ -17,6 +17,7 @@ public class Connect
     private Indicator indicator_;
     private ConnectUI ui_;
     private OnConnected onConnect_;
+    private OnCancel onCancel_;
     private ConnectionService service_;
     
     public Connect(ConnectionService service, Indicator indicator)
@@ -37,6 +38,7 @@ public class Connect
     {
         ui_.registerTest(e -> test());
         ui_.registerConnect(e -> connect());
+        ui_.registerCancel(e -> cancel());
     }
     
     public void registerOnConnected(OnConnected handler)
@@ -44,6 +46,13 @@ public class Connect
         assert onConnect_ == null : "Precondition violated: onConnect_ == null";
         
         onConnect_ = handler;
+    }
+    
+    public void registerOnCancel(OnCancel handler)
+    {
+        assert onCancel_ == null : "Precondition violated: onCancel_ == null";
+        
+        onCancel_ = handler;
     }
 
     private void test()
@@ -62,6 +71,11 @@ public class Connect
         indicatorActivity(Strings.S_INFO_CONNECTION_CONNECT, Strings.C_DEFAULT);
         
         service_.request(() -> doConnect(input)).onDone(f -> evaluateConnect(f));
+    }
+    
+    private void cancel()
+    {
+        onCancel_.act();
     }
     
     private void indicatorActivity(String s, String c)
@@ -133,7 +147,8 @@ public class Connect
 
         String name = input.NAME;
         
-        if(name.isEmpty()) name = Literals.Get(Strings.S_CONNECTION_DEFAULT);
+        if(name.isEmpty() || name.equals(Literals.Get(Strings.S_NEWCONNECTION))) 
+            name = Literals.Get(Strings.S_CONNECTION_DEFAULT);
         
         return service_.doEstablishConnection(name, GetURL(input), input.USER, input.PASSWORD);
     }
@@ -143,8 +158,6 @@ public class Connect
         return URL.Get(in.SERVER, in.PORT, in.SID);
     }
 
-    public static interface OnConnected
-    {
-        void act(String connection);
-    }
+    public static interface OnConnected { void act(String connection); }
+    public static interface OnCancel { void act(); }
 }

@@ -73,7 +73,7 @@ public class Connected
     
     private Relation doLoadRelation(Connection c) throws ConnectionFailureException
     {
-        return c.query("SELECT * FROM Produkt");
+        return c.query("SELECT * FROM Test");
     }
     
     public void registerOnDisconnect(OnDisconnect h)

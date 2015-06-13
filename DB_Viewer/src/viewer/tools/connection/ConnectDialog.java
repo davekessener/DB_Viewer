@@ -26,6 +26,8 @@ public class ConnectDialog
         ui_.setContent(tool_.getUI());
         
         stage_ = createWindow();
+        
+        registerHandlers();
     }
     
     public void run()
@@ -35,7 +37,17 @@ public class ConnectDialog
     
     public void registerOnConnect(Connect.OnConnected h)
     {
-        tool_.registerOnConnected(id -> { stage_.close(); h.act(id); });
+        tool_.registerOnConnected(id -> { close(); h.act(id); });
+    }
+    
+    private void registerHandlers()
+    {
+        tool_.registerOnCancel(() -> close());
+    }
+    
+    private void close()
+    {
+        stage_.close();
     }
     
     private Stage createWindow()

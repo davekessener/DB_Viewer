@@ -6,13 +6,32 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TableView.ResizeFeatures;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.RowConstraints;
+import javafx.util.Callback;
 
 public class ConnectedUI
 {
-    private TableView<Relation.Row> pane_;
+    private Node pane_;
+    private ComboBox<String> select_;
+    private Button add_, clear_;
+    private Button commit_, rollback_;
+    private Button disconnect_;
     
     public ConnectedUI()
     {
@@ -24,27 +43,153 @@ public class ConnectedUI
         return pane_;
     }
     
+    public void registerDisconnect(EventHandler<ActionEvent> h)
+    {
+        disconnect_.setOnAction(h);
+    }
+    
+//    public void loadRelation(Relation r)
+//    {
+//    }
+    
+    private Node createUI()
+    {
+        GridPane pane = new GridPane();
+        
+        pane.setPadding(new Insets(10, 10, 10, 10));
+        pane.setHgap(10);
+        pane.setVgap(10);
+
+        ColumnConstraints cc = new ColumnConstraints();
+        ColumnConstraints ce = new ColumnConstraints();
+        ce.setHgrow(Priority.ALWAYS);
+        pane.getColumnConstraints().addAll(cc, ce, cc);
+
+        RowConstraints rc = new RowConstraints();
+        RowConstraints re = new RowConstraints();
+        re.setVgrow(Priority.ALWAYS);
+        pane.getRowConstraints().addAll(rc, re, rc);
+        
+        pane.add(createSelect(), 0, 0);
+        pane.add(createLinks(), 2, 0);
+        pane.add(createScrollPane(), 0, 1, 3, 1);
+        pane.add(createButtons(), 0, 2, 3, 1);
+        
+        return pane;
+    }
+    
+    private Node createSelect()
+    {
+        HBox pane = new HBox();
+        
+        pane.setAlignment(Pos.CENTER_LEFT);
+        pane.setSpacing(10);
+        
+        pane.getChildren().add(new Label("Tables:"));
+        pane.getChildren().add(select_ = new ComboBox<>());
+        
+        return pane;
+    }
+    
+    private Node createLinks()
+    {
+        HBox pane = new HBox();
+        
+        pane.setAlignment(Pos.CENTER_RIGHT);
+        pane.setSpacing(10);
+        
+        return pane;
+    }
+    
+    private Node createScrollPane()
+    {
+        ScrollPane pane = new ScrollPane();
+
+        pane.setHbarPolicy(ScrollBarPolicy.ALWAYS);
+        pane.setVbarPolicy(ScrollBarPolicy.ALWAYS);
+        
+        pane.setContent(createScrollContent());
+        
+        return pane;
+    }
+    
+    private Node createScrollContent()
+    {
+        BorderPane pane = new BorderPane();
+        
+        pane.setCenter(table_ = new TableView<>());
+        pane.setBottom(createInnerButtons());
+
+        pane.prefHeightProperty().bind(table_.prefHeightProperty());
+        pane.prefWidthProperty().bind(table_.prefWidthProperty());
+        
+        return pane;
+    }
+    
+    private Node createInnerButtons()
+    {
+        HBox pane = new HBox();
+        
+        pane.setAlignment(Pos.CENTER_LEFT);
+        pane.setSpacing(10);
+        
+        pane.getChildren().add(add_ = new Button("Add"));
+        pane.getChildren().add(clear_ = new Button("Clear"));
+        
+        return pane;
+    }
+    
+    private Node createButtons()
+    {
+        GridPane pane = new GridPane();
+        
+        pane.setHgap(10);
+
+        ColumnConstraints cc = new ColumnConstraints();
+        ColumnConstraints ce = new ColumnConstraints();
+        ce.setHgrow(Priority.ALWAYS);
+        pane.getColumnConstraints().addAll(cc, cc, ce, cc);
+        
+        pane.add(commit_ = new Button("Commit"), 0, 0);
+        pane.add(rollback_ = new Button("Rollback"), 1, 0);
+        pane.add(disconnect_ = new Button("Disconnect"), 3, 0);
+        
+        return pane;
+    }
+    
+    private TableView<Relation.Row> table_;
+//    
+//    public ConnectedUI()
+//    {
+//        pane_ = createUI();
+//    }
+//    
+//    public Node getUI()
+//    {
+//        return pane_;
+//    }
+//    
     public void loadRelation(Relation r)
     {
-        pane_.setItems(FXCollections.observableList(r.getRows()));
+        table_.setItems(FXCollections.observableList(r.getRows()));
         
         for(String n : r.getColumns())
         {
             TableColumn<Relation.Row, String> c = new TableColumn<>(n);
             c.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(n)));
             c.setComparator(new StringDecimalComparator());
-            pane_.getColumns().add(c);
+            table_.getColumns().add(c);
         }
     }
-    
-    private TableView<Relation.Row> createUI()
-    {
-        TableView<Relation.Row> pane = new TableView<>();
-        
-        return pane;
-    }
-    
-    public void registerDisconnect(EventHandler<ActionEvent> h)
-    {
-    }
+//    
+//    private TableView<Relation.Row> createUI()
+//    {
+//        TableView<Relation.Row> pane = new TableView<>();
+//        
+//        return pane;
+//    }
+//    
+//    public void registerDisconnect(EventHandler<ActionEvent> h)
+//    {
+//    }
 }

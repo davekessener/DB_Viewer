@@ -29,6 +29,7 @@
     {
         "S:title" : "Establish connection",
         "B:connect" : "Connect",
+        "B:cancel" : "Cancel",
         "B:test" : "Test",
     	"S:name" : "Name:",
     	"S:server" : "Server:",

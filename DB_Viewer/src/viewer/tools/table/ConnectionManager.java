@@ -39,8 +39,7 @@ public class ConnectionManager
     {
         if(service_.knowsConnection(title_.get()))
         {
-            service_.closeConnection(title_.get());
-            title_.set(DefaultTitle());
+            disconnect();
         }
     }
     
@@ -49,6 +48,13 @@ public class ConnectionManager
         title_.set(id);
         ui_.setContent(connected_.getUI());
         connected_.init(id);
+    }
+    
+    private void disconnect()
+    {
+        service_.closeConnection(title_.get());
+        title_.set(DefaultTitle());
+        ui_.setContent(establish_.getUI());
     }
     
     private void openDialog()
@@ -60,6 +66,7 @@ public class ConnectionManager
     {
         establish_.registerOnClick(e -> openDialog());
         connect_.registerOnConnect(id -> connect(id));
+        connected_.registerOnDisconnect(() -> disconnect());
     }
 
     public Node getUI()

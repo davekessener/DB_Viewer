@@ -19,6 +19,7 @@ public class Strings
     
     public static final String B_ESTABLISH = "button:establish";
     public static final String B_ESTABLISH_CONNECT = "button:establish.connect";
+    public static final String B_ESTABLISH_CANCEL = "button:establish.cancel";
     public static final String B_ESTABLISH_TEST = "button:establish.test";
 
     public static final String S_TITLE = "string:title";
