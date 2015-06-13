@@ -1,12 +1,13 @@
 package viewer.tools.connection;
 
-import javafx.application.Platform;
 import javafx.scene.Node;
 import viewer.exception.ConnectionFailureException;
 import viewer.literals.Relation;
 import viewer.literals.language.Strings;
 import viewer.materials.Connection;
 import viewer.service.connection.ConnectionService;
+import viewer.service.connection.Future;
+import viewer.tools.ui.Alert;
 import viewer.tools.ui.Alert.AlertType;
 import viewer.tools.ui.Indicator;
 
@@ -43,21 +44,36 @@ public class Connected
         indicator_.setInfo(Strings.S_INFO_CONNECTION_LOADING);
         indicator_.setEnabled(false);
         
-        service_.register(id, (Connection c) -> Platform.runLater(() -> display(c)));
+        service_.request(id, (Connection c) -> doLoadRelation(c)).onDone(f -> evaluateLoadedRelation(f));
     }
     
-    private void display(Connection c)
+    private void evaluateLoadedRelation(Future<Relation> f)
     {
         try
         {
-            Relation r = c.query("SELECT * FROM Kunde");
-            
+            ui_.loadRelation(f.get());
+            indicator_.setInfo("");
+            indicator_.setEnabled(true);
         }
         catch(ConnectionFailureException e)
         {
             e.printStackTrace();
             indicator_.alert(AlertType.ERROR, "Failure", "Query failed.");
         }
+        catch(RuntimeException e)
+        {
+            throw e;
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+            Alert.ShowExceptionError("Unknown Exception", null, e);
+        }
+    }
+    
+    private Relation doLoadRelation(Connection c) throws ConnectionFailureException
+    {
+        return c.query("SELECT * FROM Kunde");
     }
     
     public void registerOnDisconnect(OnDisconnect h)

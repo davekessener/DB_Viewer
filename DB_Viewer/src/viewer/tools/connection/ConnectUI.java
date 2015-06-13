@@ -36,12 +36,16 @@ class ConnectUI
         return pane_;
     }
     
-    public String getName() { return name_.getText(); }
-    public String getServer() { return server_.getText(); }
-    public String getSID() { return sid_.getText(); }
-    public int getPort() { return port_.getValue(); }
-    public String getUser() { return user_.getText(); }
-    public String getPassword() { return password_.getText(); }
+    public Form getInput()
+    {
+        return new Form(
+                    name_.getText(),
+                    server_.getText(),
+                    port_.getValue(),
+                    sid_.getText(),
+                    user_.getText(),
+                    password_.getText());
+    }
     
     public void registerConnect(EventHandler<ActionEvent> h)
     {
@@ -52,10 +56,6 @@ class ConnectUI
     {
         test_.setOnAction(h);
     }
-    
-    // # ---------------------------------------------------------------------
-    
-    // # ---------------------------------------------------------------------
     
     private Node createUI()
     {
@@ -127,7 +127,6 @@ class ConnectUI
     
     private void configureGrid(GridPane grid)
     {
-        grid.setAlignment(Pos.TOP_CENTER);
         grid.setHgap(10.0);
         grid.setVgap(10.0);
         grid.setPadding(new Insets(15, 10, 10, 10));

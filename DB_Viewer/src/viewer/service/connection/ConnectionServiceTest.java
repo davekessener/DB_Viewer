@@ -24,7 +24,7 @@ public class ConnectionServiceTest
             
             id = service.establishConnection(id, haw, user, password).get();
             
-            Future<String> f = service.register(id, (Connection c) -> 
+            Future<String> f = service.request(id, (Connection c) -> 
             {
                 Relation r = c.query("SELECT Nachname FROM Kunde WHERE Vorname = 'Daiki'");
                 

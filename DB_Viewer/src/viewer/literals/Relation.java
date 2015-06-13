@@ -1,10 +1,12 @@
 package viewer.literals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Relation implements Iterable<Relation.Row>
 {
@@ -17,8 +19,8 @@ public class Relation implements Iterable<Relation.Row>
         assert cols != null : "Precondition violated: cols_ != null";
         
         cols_ = cols;
-        rows_ = new ArrayList<String[]>();
-        pos_ = new HashMap<String, Integer>();
+        rows_ = new ArrayList<>();
+        pos_ = new HashMap<>();
         
         for(int i = 0 ; i < cols_.length ; ++i)
         {
@@ -35,6 +37,16 @@ public class Relation implements Iterable<Relation.Row>
         assert row.length == cols_.length : "Precondition violated: row.length == cols_.length";
         
         rows_.add(row);
+    }
+    
+    public List<String> getColumns()
+    {
+        return Arrays.asList(cols_);
+    }
+    
+    public List<Row> getRows()
+    {
+        return rows_.stream().map(Row::new).collect(Collectors.toList());
     }
     
     public Row getRow(int i)

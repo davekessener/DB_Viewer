@@ -3,7 +3,6 @@ package viewer.tools.viewer;
 import viewer.literals.language.Literals;
 import viewer.literals.language.Resources;
 import viewer.literals.language.Strings;
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -54,19 +53,13 @@ class ViewerUI
         AnchorPane.setTopAnchor(addButton, 1.0);
         AnchorPane.setLeftAnchor(addButton, 1.0);
 
-        addButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event)
-            {
-                addTab();
-            }
-        });
+        addButton.setOnAction(e -> addTab());
         
         tabs_.setTabClosingPolicy(TabClosingPolicy.ALL_TABS);
         
         root.getChildren().addAll(tabs_, addButton);
 
-        Scene scene = new Scene(root);
+        Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add(Resources.CSS_TABS);
         
         stage_.setTitle(Literals.Get(Strings.S_TITLE));

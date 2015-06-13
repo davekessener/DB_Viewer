@@ -45,6 +45,11 @@ public class Alert
        }
     }
     
+    public static void ShowExceptionError(String title, String msg, Throwable t)
+    {
+        Dialogs.create().title(title).message(msg).showException(t);
+    }
+    
     public static enum AlertType
     {
         ERROR,

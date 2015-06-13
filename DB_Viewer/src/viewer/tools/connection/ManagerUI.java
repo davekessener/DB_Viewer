@@ -3,7 +3,6 @@ package viewer.tools.connection;
 import viewer.literals.language.Literals;
 import viewer.tools.ui.Alert;
 import viewer.tools.ui.Indicator;
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -41,38 +40,17 @@ public class ManagerUI implements Indicator
     @Override
     public void alert(Alert.AlertType type, String title, String msg)
     {
-        Platform.runLater(() -> doAlert(type, title, msg));
+        displayAlert(type, title, null, msg);
     }
     
     @Override
     public void setInfo(String s)
     {
-        Platform.runLater(() -> doSetInfo(s));
+        info_.setText(Literals.Get(s));
     }
     
     @Override
     public void setEnabled(boolean f)
-    {
-        Platform.runLater(() -> doSetEnabled(f));
-    }
-    
-    @Override
-    public void setColor(String c)
-    {
-        Platform.runLater(() -> doSetColor(c));
-    }
-    
-    public void doAlert(Alert.AlertType type, String title, String msg)
-    {
-        displayAlert(type, title, null, msg);
-    }
-    
-    public void doSetInfo(String s)
-    {
-        info_.setText(Literals.Get(s));
-    }
-    
-    public void doSetEnabled(boolean f)
     {
         if(content_ != null)
         {
@@ -80,7 +58,8 @@ public class ManagerUI implements Indicator
         }
     }
     
-    public void doSetColor(String c)
+    @Override
+    public void setColor(String c)
     {
         info_.setTextFill(Color.web(Literals.Get(c)));
     }

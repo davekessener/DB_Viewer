@@ -71,6 +71,8 @@ public class Connection
         {
             if(connected())
             {
+                Logger.Log("Disconnected line %d.", id_);
+                
                 java.sql.Connection c = con_;
 
                 con_ = null;
@@ -78,8 +80,6 @@ public class Connection
             }
         }
         catch(ConnectionFailureException | SQLException e) { }
-        
-        Logger.Log("Disconnected line %d.", id_);
     }
     
     public synchronized Relation query(String query) throws ConnectionFailureException

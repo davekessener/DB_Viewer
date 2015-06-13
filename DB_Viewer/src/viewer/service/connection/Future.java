@@ -13,4 +13,9 @@ public class Future<T>
     
     @SuppressWarnings("unchecked")
     public T get() throws Exception { return (T) promise_.getResult(); }
+    
+    public void onDone(Hook<T> h)
+    {
+        promise_.onDone(() -> h.onDone(this));
+    }
 }

@@ -3,6 +3,7 @@ package viewer.service.connection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javafx.application.Platform;
 import viewer.exception.ConnectionFailureException;
 import viewer.literals.URL;
 import viewer.materials.Connection;
@@ -20,9 +21,9 @@ public class ConnectionService implements AutoCloseable
         thread_.start();
     }
     
-    public FailableFuture testConnection(URL url, String u, String p)
+    public Future<Boolean> testConnection(URL url, String u, String p)
     {
-        return new FailableFuture(register(() -> doTestConnection(url, u, p)));
+        return request(() -> doTestConnection(url, u, p));
     }
     
     public boolean doTestConnection(URL url, String u, String p) throws ConnectionFailureException
@@ -42,7 +43,7 @@ public class ConnectionService implements AutoCloseable
     
     public Future<String> establishConnection(String name, URL url, String u, String p) throws ConnectionFailureException
     {
-        return register(() -> doEstablishConnection(name, url, u, p));
+        return request(() -> doEstablishConnection(name, url, u, p));
     }
     
     public String doEstablishConnection(String name, URL url, String u, String p) throws ConnectionFailureException
@@ -58,7 +59,7 @@ public class ConnectionService implements AutoCloseable
     
     public Future<Void> closeConnection(String name)
     {
-        return register(() -> doCloseConnection(name));
+        return request(() -> doCloseConnection(name));
     }
     
     public void doCloseConnection(String name)
@@ -86,26 +87,26 @@ public class ConnectionService implements AutoCloseable
         return cons_.containsKey(name);
     }
 
-    public Future<Void> register(String id, VoidConnectionTask task)
+    public Future<Void> request(String id, VoidConnectionTask task)
     {
-        return register(id, (Connection c) -> { task.execute(c); return Void.Return(); });
+        return request(id, (Connection c) -> { task.execute(c); return Void.Return(); });
     }
     
-    public <T> Future<T> register(String id, ConnectionTask<T> task)
+    public <T> Future<T> request(String id, ConnectionTask<T> task)
     {
         assert knowsConnection(id) : "Precondition violated: knowsConnection(name)";
         
         Connection c = cons_.get(id);
         
-        return register(() -> task.execute(c));
+        return request(() -> task.execute(c));
     }
     
-    public Future<Void> register(VoidTask task)
+    public Future<Void> request(VoidTask task)
     {
-        return register(() -> { task.execute(); return Void.Return(); });
+        return request(() -> { task.execute(); return Void.Return(); });
     }
     
-    public <T> Future<T> register(Task<T> task)
+    public <T> Future<T> request(Task<T> task)
     {
         Promise p = new Promise(task);
         
@@ -113,7 +114,9 @@ public class ConnectionService implements AutoCloseable
         
         return new Future<T>(p);
     }
-
+    
+    public void consume(Runnable r) { Platform.runLater(r); }
+    
     @Override
     public void close() throws Exception
     {

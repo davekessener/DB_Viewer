@@ -1,6 +1,5 @@
 package viewer.tools.connection;
 
-import javafx.application.Platform;
 import javafx.scene.Node;
 import viewer.exception.ConnectionFailureException;
 import viewer.exception.URLException;
@@ -8,6 +7,7 @@ import viewer.literals.URL;
 import viewer.literals.language.Literals;
 import viewer.literals.language.Strings;
 import viewer.service.connection.ConnectionService;
+import viewer.service.connection.Future;
 import viewer.service.connection.VoidTask;
 import viewer.tools.ui.Alert;
 import viewer.tools.ui.Indicator;
@@ -48,23 +48,30 @@ public class Connect
 
     private void test()
     {
-        indicatorActivity(Strings.S_INFO_CONNECTION_INITIALIZATION, Strings.C_DEFAULT, () -> doTestConnection());
+        Form input = ui_.getInput();
+        
+        indicatorActivity(Strings.S_INFO_CONNECTION_INITIALIZATION, Strings.C_DEFAULT);
+        
+        service_.request(() -> doConnectionTest(input)).onDone(f -> evaluateConnectionTest(f));
     }
 
     private void connect()
     {
-        indicatorActivity(Strings.S_INFO_CONNECTION_CONNECT, Strings.C_DEFAULT, () -> doConnect());
+        Form input = ui_.getInput();
+        
+        indicatorActivity(Strings.S_INFO_CONNECTION_CONNECT, Strings.C_DEFAULT);
+        
+        service_.request(() -> doConnect(input)).onDone(f -> evaluateConnect(f));
     }
     
-    private void indicatorActivity(String s, String c, VoidTask t)
+    private void indicatorActivity(String s, String c)
     {
         indicator_.setColor(c);
         indicator_.setInfo(s);
         indicator_.setEnabled(false);
-        service_.register(() -> doConnectionActivity(t));
     }
     
-    private void doConnectionActivity(VoidTask t)
+    private void evaluate(VoidTask t)
     {
         try
         {
@@ -84,41 +91,56 @@ public class Connect
         indicator_.setEnabled(true);
     }
     
-    private void doTestConnection() throws ConnectionFailureException, URLException
+    private void evaluateConnectionTest(Future<Boolean> f)
     {
-        if(service_.doTestConnection(getURL(), ui_.getUser(), ui_.getPassword()))
+        evaluate(() ->
         {
-            indicator_.setColor(Strings.C_SUCCESS);
-            indicator_.setInfo(Strings.S_INFO_SUCCESS);
-        }
-        else
-        {
-            indicator_.setColor(Strings.C_FAILURE);
-            indicator_.setInfo(Strings.S_INFO_FAILURE);
-        }
+            if(f.get())
+            {
+                indicator_.setColor(Strings.C_SUCCESS);
+                indicator_.setInfo(Strings.S_INFO_SUCCESS);
+            }
+            else
+            {
+                indicator_.setColor(Strings.C_FAILURE);
+                indicator_.setInfo(Strings.S_INFO_FAILURE);
+            }
+        });
     }
     
-    private void doConnect() throws ConnectionFailureException, URLException
+    private boolean doConnectionTest(Form input) throws ConnectionFailureException, URLException
+    {
+        return service_.doTestConnection(GetURL(input), input.USER, input.PASSWORD);
+    }
+    
+    private void evaluateConnect(Future<String> f)
+    {
+        evaluate(() ->
+        {
+            String id = f.get();
+            
+            indicator_.setColor(Strings.C_SUCCESS);
+            indicator_.setInfo(Strings.S_INFO_CONNECTION_ESTABLISHED);
+            indicator_.setEnabled(true);
+            
+            onConnect_.act(id);
+        });
+    }
+    
+    private String doConnect(Form input) throws ConnectionFailureException, URLException
     {
         assert onConnect_ != null : "Precondition violated: onConnect_ != null";
 
-        String name = ui_.getName();
-        String user = ui_.getUser(), password = ui_.getPassword();
+        String name = input.NAME;
         
         if(name.isEmpty()) name = Literals.Get(Strings.S_CONNECTION_DEFAULT);
         
-        final String id = service_.doEstablishConnection(name, getURL(), user, password);
-        
-        indicator_.setColor(Strings.C_SUCCESS);
-        indicator_.setInfo(Strings.S_INFO_CONNECTION_ESTABLISHED);
-        indicator_.setEnabled(true);
-        
-        Platform.runLater(() -> onConnect_.act(id));
+        return service_.doEstablishConnection(name, GetURL(input), input.USER, input.PASSWORD);
     }
     
-    private URL getURL() throws URLException
+    private static URL GetURL(Form in) throws URLException
     {
-        return URL.Get(ui_.getServer(), ui_.getPort(), ui_.getSID());
+        return URL.Get(in.SERVER, in.PORT, in.SID);
     }
 
     public static interface OnConnected
