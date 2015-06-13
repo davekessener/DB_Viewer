@@ -1,6 +1,7 @@
 {
     "S:title" : "DBP/2 - Database Viewer",
-    "S:newconnection" : "New Connection",
+    "S:newconnection" : "Unnamed Connection",
+    "B:establish" : "New connection",
     "info" :
     {
     	"connection" :
@@ -26,6 +27,7 @@
     },
     "establish" :
     {
+        "S:title" : "Establish connection",
         "B:connect" : "Connect",
         "B:test" : "Test",
     	"S:name" : "Name:",

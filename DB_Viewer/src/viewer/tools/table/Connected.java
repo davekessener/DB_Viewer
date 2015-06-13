@@ -1,4 +1,4 @@
-package viewer.tools.connection;
+package viewer.tools.table;
 
 import javafx.scene.Node;
 import viewer.exception.ConnectionFailureException;
@@ -73,7 +73,7 @@ public class Connected
     
     private Relation doLoadRelation(Connection c) throws ConnectionFailureException
     {
-        return c.query("SELECT * FROM Kunde");
+        return c.query("SELECT * FROM Produkt");
     }
     
     public void registerOnDisconnect(OnDisconnect h)

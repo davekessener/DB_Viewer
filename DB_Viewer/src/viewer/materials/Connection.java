@@ -5,7 +5,9 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import viewer.exception.ConnectionFailureException;
@@ -61,7 +63,7 @@ public class Connection
         }
         catch(SQLException e)
         {
-            throw new ConnectionFailureException(Failure.TIMEOUT);
+            throw new ConnectionFailureException(GetFailure(e.getErrorCode()));
         }
     }
     
@@ -85,6 +87,7 @@ public class Connection
     public synchronized Relation query(String query) throws ConnectionFailureException
     {
         assert connected() : "Precondition violated: connected()";
+        assert QUERIES.contains(query.split("[ \t]+")[0]) : "Precondition violated: QUERIES.contains(query)";
         
         try
         {
@@ -96,7 +99,26 @@ public class Connection
         }
         catch(SQLException e)
         {
-            throw new ConnectionFailureException(Failure.TIMEOUT);
+            throw new ConnectionFailureException(GetFailure(e.getErrorCode()));
+        }
+    }
+    
+    public synchronized int modify(String query) throws ConnectionFailureException
+    {
+        assert connected() : "Precondition violated: connected()";
+        assert UPDATES.contains(query.split("[ \t]+")[0]) : "Precondition violated: UPDATES.contains(query)";
+        
+        try
+        {
+            Statement s = con_.createStatement();
+            
+            s.setQueryTimeout(5);
+            
+            return s.executeUpdate(query);
+        }
+        catch(SQLException e)
+        {
+            throw new ConnectionFailureException(GetFailure(e.getErrorCode()));
         }
     }
     
@@ -153,4 +175,7 @@ public class Connection
         return ORACLE_ERRORCODES.containsKey(ec) ? 
                 ORACLE_ERRORCODES.get(ec) : Failure.UNKNOWN(ec);
     }
+
+    private static final List<String> QUERIES = Arrays.asList(new String[] {"SELECT"});
+    private static final List<String> UPDATES = Arrays.asList(new String[] {"UPDATE", "INSERT", "DELETE", "DROP", "CREATE"});
 }

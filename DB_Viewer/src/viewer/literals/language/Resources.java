@@ -1,10 +1,8 @@
 package viewer.literals.language;
 
-import java.io.File;
 import java.util.Locale;
 
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 
 public class Resources
 {
@@ -27,13 +25,9 @@ public class Resources
         return D_LANG_FILES + l.getCountry() + "_" + l.getLanguage() + S_LANG_EXT;
     }
     
-    public static ImageView GetImageNode(String img)
+    public static Image GetImage(String img)
     {
-        File f = new File(img);
-        Image i = new Image(f.toURI().toString());
-        ImageView v = new ImageView();
-        v.setImage(i);
-        return v;
+        return new Image(URI_FILE + img);
     }
     
     private Resources() { }

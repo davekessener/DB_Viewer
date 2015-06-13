@@ -1,0 +1,54 @@
+package viewer.tools.connection;
+
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import viewer.literals.language.Literals;
+import viewer.literals.language.Resources;
+import viewer.literals.language.Strings;
+import viewer.service.connection.ConnectionService;
+import viewer.tools.viewer.IndicatorUI;
+
+public class ConnectDialog
+{
+    private ConnectionService service_;
+    private Connect tool_;
+    private IndicatorUI ui_;
+    private Stage stage_;
+    
+    public ConnectDialog(ConnectionService service)
+    {
+        this.service_ = service;
+        this.ui_ = new IndicatorUI();
+        this.tool_ = new Connect(service_, ui_);
+        
+        ui_.setContent(tool_.getUI());
+        
+        stage_ = createWindow();
+    }
+    
+    public void run()
+    {
+        stage_.showAndWait();
+    }
+    
+    public void registerOnConnect(Connect.OnConnected h)
+    {
+        tool_.registerOnConnected(id -> { stage_.close(); h.act(id); });
+    }
+    
+    private Stage createWindow()
+    {
+        Stage stage = new Stage();
+        
+        stage.setTitle(Literals.Get(Strings.S_ESTABLISH_TITLE));
+        stage.getIcons().add(Resources.GetImage(Resources.I_ADD));
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setScene(new Scene((Parent) ui_.getUI()));
+        stage.setResizable(false);
+        stage.centerOnScreen();
+        
+        return stage;
+    }
+}

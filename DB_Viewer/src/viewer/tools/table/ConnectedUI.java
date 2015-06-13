@@ -1,6 +1,7 @@
-package viewer.tools.connection;
+package viewer.tools.table;
 
 import viewer.literals.Relation;
+import viewer.tools.StringDecimalComparator;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -31,6 +32,7 @@ public class ConnectedUI
         {
             TableColumn<Relation.Row, String> c = new TableColumn<>(n);
             c.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(n)));
+            c.setComparator(new StringDecimalComparator());
             pane_.getColumns().add(c);
         }
     }

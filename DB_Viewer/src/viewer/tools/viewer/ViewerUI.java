@@ -39,7 +39,7 @@ class ViewerUI
         AnchorPane root = new AnchorPane();
         tabs_ = new TabPane();
         Button addButton = new Button();
-        ImageView v = Resources.GetImageNode(Resources.I_ADD);
+        ImageView v = new ImageView(Resources.GetImage(Resources.I_ADD));
         
         v.setFitWidth(16);
         v.setPreserveRatio(true);

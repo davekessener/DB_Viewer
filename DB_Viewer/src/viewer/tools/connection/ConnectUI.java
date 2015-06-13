@@ -13,6 +13,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -79,10 +81,33 @@ class ConnectUI
         port_.setMinWidth(20);
         port_.setPrefWidth(80);
         
+        name_.setText(Literals.Get(Strings.S_NEWCONNECTION));
+        
+        if(Literals.DEBUG)
+        {
+            server_.setText("http://ora14.informatik.haw-hamburg.de/");
+            port_.setText("1521");
+            sid_.setText("inf14");
+        }
+
         grid.add(createUserPassword(), 1, 2, 3, 1);
         grid.add(createButtons(), 0, 3, 4, 1);
         
+        connect_.defaultButtonProperty().bind(connect_.focusedProperty());
+
+        name_.setOnKeyPressed(e -> checkEnter(e));
+        server_.setOnKeyPressed(e -> checkEnter(e));
+        port_.setOnKeyPressed(e -> checkEnter(e));
+        sid_.setOnKeyPressed(e -> checkEnter(e));
+        user_.setOnKeyPressed(e -> checkEnter(e));
+        password_.setOnKeyPressed(e -> checkEnter(e));
+        
         return grid;
+    }
+    
+    private void checkEnter(KeyEvent e)
+    {
+        if(e.getCode().equals(KeyCode.ENTER)) connect_.getOnAction().handle(new ActionEvent());
     }
     
     private Node createButtons()

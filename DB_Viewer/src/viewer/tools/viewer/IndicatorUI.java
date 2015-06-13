@@ -1,4 +1,4 @@
-package viewer.tools.connection;
+package viewer.tools.viewer;
 
 import viewer.literals.language.Literals;
 import viewer.tools.ui.Alert;
@@ -11,13 +11,13 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 
-public class ManagerUI implements Indicator
+public class IndicatorUI implements Indicator
 {
     private StackPane pane_;
     private Label info_;
     private Node content_, indicator_;
     
-    public ManagerUI()
+    public IndicatorUI()
     {
         pane_ = createUI();
     }

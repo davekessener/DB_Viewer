@@ -5,6 +5,7 @@ import java.util.Locale;
 public class Literals
 {
     private static Language LANGUAGE = Language.DEFAULT;
+    public static final boolean DEBUG = true;
     
     public static String Get(String s)
     {
