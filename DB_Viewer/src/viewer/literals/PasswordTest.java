@@ -20,7 +20,7 @@ public class PasswordTest
     public void testStaticSymmetry()
     {
         String raw = "hello world";
-        String enc = "cffa77e566c903616a93d64327e2d26e";
+        String enc = "e94f9e84e94dc6ce303d714c21bd8660";
 
         assertEquals(enc, Password.Encrypt(raw));
         assertEquals(raw, Password.Decrypt(enc));

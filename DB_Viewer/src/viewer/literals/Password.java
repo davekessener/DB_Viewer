@@ -1,7 +1,12 @@
 package viewer.literals;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -11,7 +16,7 @@ public class Password
 {
     private static final Password INSTANCE = new Password();
     
-    public static final String PASSWORD = Decrypt("3cbe7e4b8ef7ecd02b83f9d2edfa23a1");
+    public static final String PASSWORD = Decrypt(Load());
     
     private Key key_;
     private Cipher cipher_;
@@ -23,7 +28,7 @@ public class Password
     {
         try
         {
-            key_ = new SecretKeySpec("R?83Hkd?7%dC%G_v".getBytes(), "AES");
+            key_ = new SecretKeySpec("ZL7_$?S3AU+eXanE".getBytes(), "AES");
             cipher_ = Cipher.getInstance("AES");
         }
         catch(NoSuchAlgorithmException | NoSuchPaddingException e)
@@ -91,5 +96,21 @@ public class Password
         }
         
         return sb.toString();
+    }
+    
+    private static final String Load()
+    {
+        try(BufferedReader reader = new BufferedReader(new FileReader("resources/passwd/passwd")))
+        {
+            return reader.readLine();
+        }
+        catch(IOException e)
+        {
+            Logger.getAnonymousLogger().log(Level.SEVERE, "Passwordfile not found.");
+            e.printStackTrace();
+            System.exit(1);
+        }
+        
+        return null;
     }
 }

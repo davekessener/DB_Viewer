@@ -81,6 +81,11 @@ public class Relation implements Iterable<Relation.Row>
         {
             return row_[i];
         }
+        
+        public int size()
+        {
+            return row_.length;
+        }
 
         @Override
         public Iterator<String> iterator()

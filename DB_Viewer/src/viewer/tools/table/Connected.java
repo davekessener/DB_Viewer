@@ -1,5 +1,9 @@
 package viewer.tools.table;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import viewer.exception.ConnectionFailureException;
 import viewer.literals.Relation;
@@ -51,7 +55,17 @@ public class Connected
     {
         try
         {
-            ui_.loadRelation(f.get());
+            Relation r = f.get();
+            List<String> cols = r.getColumns();
+            List<Entry> rows = new ArrayList<>();
+            
+            for(Relation.Row row : r.getRows())
+            {
+                rows.add(new Entry(cols, row));
+            }
+            
+            ui_.load(cols, FXCollections.observableList(rows));
+            
             indicator_.setInfo("");
             indicator_.setEnabled(true);
         }
@@ -73,7 +87,7 @@ public class Connected
     
     private Relation doLoadRelation(Connection c) throws ConnectionFailureException
     {
-        return c.query("SELECT * FROM Test");
+        return c.query("SELECT * FROM Kunde");
     }
     
     public void registerOnDisconnect(OnDisconnect h)

@@ -1,9 +1,12 @@
 package viewer.tools.table;
 
+import java.util.List;
+
 import viewer.literals.Relation;
 import viewer.tools.StringDecimalComparator;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -29,9 +32,9 @@ public class ConnectedUI
 {
     private Node pane_;
     private ComboBox<String> select_;
-    private Button add_, clear_;
-    private Button commit_, rollback_;
+    private Button add_, commit_, rollback_;
     private Button disconnect_;
+    private TableView<Entry> table_;
     
     public ConnectedUI()
     {
@@ -72,7 +75,8 @@ public class ConnectedUI
         
         pane.add(createSelect(), 0, 0);
         pane.add(createLinks(), 2, 0);
-        pane.add(createScrollPane(), 0, 1, 3, 1);
+//        pane.add(createScrollPane(), 0, 1, 3, 1);
+        pane.add(table_ = new TableView<>(), 0, 1, 3, 1);
         pane.add(createButtons(), 0, 2, 3, 1);
         
         return pane;
@@ -105,8 +109,10 @@ public class ConnectedUI
     {
         ScrollPane pane = new ScrollPane();
 
-        pane.setHbarPolicy(ScrollBarPolicy.ALWAYS);
-        pane.setVbarPolicy(ScrollBarPolicy.ALWAYS);
+        pane.setHbarPolicy(ScrollBarPolicy.NEVER);
+        pane.setVbarPolicy(ScrollBarPolicy.NEVER);
+        pane.setFitToHeight(true);
+        pane.setFitToWidth(true);
         
         pane.setContent(createScrollContent());
         
@@ -134,7 +140,7 @@ public class ConnectedUI
         pane.setSpacing(10);
         
         pane.getChildren().add(add_ = new Button("Add"));
-        pane.getChildren().add(clear_ = new Button("Clear"));
+//        pane.getChildren().add(clear_ = new Button("Clear"));
         
         return pane;
     }
@@ -157,7 +163,6 @@ public class ConnectedUI
         return pane;
     }
     
-    private TableView<Relation.Row> table_;
 //    
 //    public ConnectedUI()
 //    {
@@ -168,19 +173,34 @@ public class ConnectedUI
 //    {
 //        return pane_;
 //    }
-//    
-    public void loadRelation(Relation r)
+    
+    public void load(List<String> cs, ObservableList<Entry> rs)
     {
-        table_.setItems(FXCollections.observableList(r.getRows()));
+        table_.setItems(rs);
         
-        for(String n : r.getColumns())
+        for(String n : cs)
         {
-            TableColumn<Relation.Row, String> c = new TableColumn<>(n);
-            c.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(n)));
+            TableColumn<Entry, String> c = new TableColumn<>(n);
+            
+            c.setCellValueFactory(p -> p.getValue().getProperty(n));
             c.setComparator(new StringDecimalComparator());
+            
             table_.getColumns().add(c);
         }
     }
+    
+//    public void loadRelation(Relation r)
+//    {
+//        table_.setItems(FXCollections.observableList(r.getRows()));
+//        
+//        for(String n : r.getColumns())
+//        {
+//            TableColumn<Relation.Row, String> c = new TableColumn<>(n);
+//            c.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(n)));
+//            c.setComparator(new StringDecimalComparator());
+//            table_.getColumns().add(c);
+//        }
+//    }
 //    
 //    private TableView<Relation.Row> createUI()
 //    {
