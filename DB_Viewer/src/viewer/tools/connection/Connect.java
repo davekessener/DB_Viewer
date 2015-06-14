@@ -99,7 +99,7 @@ public class Connect
         catch(Exception e)
         {
             e.printStackTrace();
-            indicator_.alert(Alert.AlertType.ERROR, "Exception", e.getLocalizedMessage());
+            Alert.DisplayAlert(Alert.AlertType.ERROR, "Exception", null, e.getLocalizedMessage());
         }
 
         indicator_.setEnabled(true);

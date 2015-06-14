@@ -34,6 +34,11 @@ class ViewerUI
         stage_.show();
     }
     
+    public void registerOnClose(Runnable r)
+    {
+        stage_.setOnCloseRequest(e -> r.run());
+    }
+    
     private void initStage()
     {
         AnchorPane root = new AnchorPane();

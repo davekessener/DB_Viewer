@@ -3,14 +3,15 @@ package viewer.tools.table;
 import java.util.ArrayList;
 import java.util.List;
 
-import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import viewer.exception.ConnectionFailureException;
 import viewer.literals.Relation;
 import viewer.literals.language.Strings;
 import viewer.materials.Connection;
+import viewer.materials.Pair;
 import viewer.service.connection.ConnectionService;
 import viewer.service.connection.Future;
+import viewer.service.connection.VoidTask;
 import viewer.tools.ui.Alert;
 import viewer.tools.ui.Alert.AlertType;
 import viewer.tools.ui.Indicator;
@@ -21,58 +22,114 @@ public class Connected
     private Indicator indicator_;
     private ConnectionService service_;
     private OnDisconnect disconnect_;
+    private TableManager tables_;
+    private String connection_;
     
     public Connected(ConnectionService service, Indicator indicator)
     {
         this.service_ = service;
         this.indicator_ = indicator;
+        this.tables_ = null;
         
         ui_ = new ConnectedUI();
         
         registerHandlers();
     }
-    
-    private void registerHandlers()
-    {
-        ui_.registerDisconnect(e -> disconnect());
-    }
-    
+
     public Node getUI()
     {
         return ui_.getUI();
     }
+    
+    public void registerOnDisconnect(OnDisconnect h)
+    {
+        assert disconnect_ == null : "Precondition violated: disconnect_ == null";
+        
+        disconnect_ = h;
+    }
+    
+    // # ----------------------------------------------------------------------
+
+    private void add()
+    {
+    }
+    
+    private void remove(Entry e)
+    {
+        String table = tables_.getTable(e);
+        List<String> fs = new ArrayList<String>();
+        
+        for(String k : e.getColumns())
+        {
+            fs.add(k + " = '" + e.get(k) + "'");
+        }
+        
+        String s = "DELETE FROM " + table + " WHERE " + String.join(", ", fs);
+        
+        service_.request(connection_, (Connection c) -> c.modify(s));
+    }
+    
+    private void commit()
+    {
+    }
+    
+    private void rollback()
+    {
+    }
+
+    private void disconnect()
+    {
+        assert disconnect_ != null : "Vorbedingung verletzt: disconnect_ != null";
+        
+        disconnect_.act();
+    }
+    
+    private void select(String s)
+    {
+        indicator_.setColor(Strings.C_DEFAULT);
+        indicator_.setInfo(Strings.S_INFO_CONNECTION_LOADING);
+        indicator_.setEnabled(false);
+        
+        service_.request(connection_, (Connection c) -> doLoadTable(c, s)).onDone(f -> evaluateTable(f));
+    }
+    
+    private void registerHandlers()
+    {
+        ui_.registerAdd(e -> add());
+        ui_.registerRemove(e -> remove(e));
+        ui_.registerCommit(e -> commit());
+        ui_.registerRollback(e -> rollback());
+        ui_.registerDisconnect(e -> disconnect());
+        ui_.registerSelect(s -> select(s));
+    }
+    
+    // # ----------------------------------------------------------------------
     
     public void init(String id)
     {
         indicator_.setColor(Strings.C_DEFAULT);
         indicator_.setInfo(Strings.S_INFO_CONNECTION_LOADING);
         indicator_.setEnabled(false);
+
+        tables_ = null;
         
-        service_.request(id, (Connection c) -> doLoadRelation(c)).onDone(f -> evaluateLoadedRelation(f));
+        ui_.clear();
+        
+        connection_ = id;
+        
+        service_.request(id, (Connection c) -> doLoadRelationTable(c)).onDone(f -> evaluateRelationTable(f));
     }
     
-    private void evaluateLoadedRelation(Future<Relation> f)
+    private void evaluate(VoidTask t)
     {
         try
         {
-            Relation r = f.get();
-            List<String> cols = r.getColumns();
-            List<Entry> rows = new ArrayList<>();
-            
-            for(Relation.Row row : r.getRows())
-            {
-                rows.add(new Entry(cols, row));
-            }
-            
-            ui_.load(cols, FXCollections.observableList(rows));
-            
-            indicator_.setInfo("");
-            indicator_.setEnabled(true);
+            t.execute();
         }
         catch(ConnectionFailureException e)
         {
             e.printStackTrace();
-            indicator_.alert(AlertType.ERROR, "Failure", "Query failed.");
+            Alert.DisplayAlert(AlertType.ERROR, "Failure", null, "Query failed.");
         }
         catch(RuntimeException e)
         {
@@ -84,31 +141,59 @@ public class Connected
             Alert.ShowExceptionError("Unknown Exception", null, e);
         }
     }
+
+    // # ----------------------------------------------------------------------
     
-    private Relation doLoadRelation(Connection c) throws ConnectionFailureException
+    private void evaluateTable(Future<Pair<String, Relation>> f)
     {
-        return c.query("SELECT * FROM Kunde");
+        evaluate(() ->
+        {
+            String id = f.get().first;
+            Relation r = f.get().second;
+            
+            tables_.updateTable(id, r);
+            
+            ui_.load(tables_.getColumns(id), tables_.getRows(id));
+            
+            indicator_.setInfo(null);
+            indicator_.setEnabled(true);
+        });
     }
     
-    public void registerOnDisconnect(OnDisconnect h)
+    private Pair<String, Relation> doLoadTable(Connection c, String id) throws ConnectionFailureException
     {
-        assert disconnect_ == null : "Precondition violated: disconnect_ == null";
-        
-        disconnect_ = h;
+        return new Pair<>(id, c.query("SELECT * FROM " + id));
+    }
+
+    // # ----------------------------------------------------------------------
+    
+    private void evaluateRelationTable(Future<Relation> f)
+    {
+        evaluate(() ->
+        {
+            List<String> tbllist = new ArrayList<>();
+            Relation tables = f.get();
+            
+            for(Relation.Row r : tables)
+            {
+                tbllist.add(r.get(0));
+            }
+            
+            tables_ = new TableManager(tbllist);
+            
+            ui_.setSelection(tables_.getTables());
+            
+            indicator_.setInfo(null);
+            indicator_.setEnabled(true); 
+        });
     }
     
-    private void disconnect()
+    private Relation doLoadRelationTable(Connection c) throws ConnectionFailureException
     {
-        assert disconnect_ != null : "Vorbedingung verletzt: disconnect_ != null";
-        
-        indicator_.setColor(Strings.C_DEFAULT);
-        indicator_.setInfo(Strings.S_INFO_CONNECTION_DISCONNECTED);
-        
-        disconnect_.act();
+        return c.query("SELECT TABLE_NAME FROM USER_TABLES");
     }
+
+    // # ----------------------------------------------------------------------
     
-    public static interface OnDisconnect
-    {
-        void act();
-    }
+    public static interface OnDisconnect { void act(); }
 }

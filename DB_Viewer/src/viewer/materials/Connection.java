@@ -89,6 +89,8 @@ public class Connection
         assert connected() : "Precondition violated: connected()";
         assert QUERIES.contains(query.split("[ \t]+")[0]) : "Precondition violated: QUERIES.contains(query)";
         
+        Logger.Log("Querying connection %d for '%s'", id_, query);
+        
         try
         {
             Statement s = con_.createStatement();

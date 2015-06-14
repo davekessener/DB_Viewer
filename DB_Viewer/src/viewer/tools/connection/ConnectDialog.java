@@ -32,6 +32,7 @@ public class ConnectDialog
     
     public void run()
     {
+        stage_.centerOnScreen();
         stage_.showAndWait();
     }
     
@@ -47,6 +48,7 @@ public class ConnectDialog
     
     private void close()
     {
+        ui_.setInfo("");
         stage_.close();
     }
     
@@ -59,7 +61,6 @@ public class ConnectDialog
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setScene(new Scene((Parent) ui_.getUI()));
         stage.setResizable(false);
-        stage.centerOnScreen();
         
         return stage;
     }

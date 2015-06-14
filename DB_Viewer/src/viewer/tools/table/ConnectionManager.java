@@ -7,11 +7,11 @@ import viewer.literals.language.Literals;
 import viewer.literals.language.Strings;
 import viewer.service.connection.ConnectionService;
 import viewer.tools.connection.ConnectDialog;
-import viewer.tools.viewer.IndicatorUI;
+import viewer.tools.viewer.IndicatorDialog;
 
 public class ConnectionManager
 {
-    private IndicatorUI ui_;
+    private IndicatorDialog ui_;
     private EstablishUI establish_;
     private Connected connected_;
     private ConnectionService service_;
@@ -21,7 +21,7 @@ public class ConnectionManager
     public ConnectionManager(ConnectionService service)
     {
         service_ = service;
-        ui_ = new IndicatorUI();
+        ui_ = new IndicatorDialog();
         connected_ = new Connected(service_, ui_);
         establish_ = new EstablishUI();
         connect_ = new ConnectDialog(service_);
@@ -41,6 +41,8 @@ public class ConnectionManager
         {
             disconnect();
         }
+        
+        ui_.close();
     }
     
     private void connect(String id)

@@ -1,43 +1,43 @@
 package viewer.tools.table;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import viewer.literals.Relation;
 import viewer.tools.StringDecimalComparator;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TableView.ResizeFeatures;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
-import javafx.util.Callback;
+import javafx.scene.layout.TilePane;
 
 public class ConnectedUI
 {
     private Node pane_;
     private ComboBox<String> select_;
-    private Button add_, commit_, rollback_;
+    private Button add_, remove_, commit_, rollback_;
     private Button disconnect_;
     private TableView<Entry> table_;
+    private Set<Node> active_;
     
     public ConnectedUI()
     {
+        active_ = new HashSet<Node>();
         pane_ = createUI();
     }
     
@@ -46,14 +46,101 @@ public class ConnectedUI
         return pane_;
     }
     
+    // # ----------------------------------------------------------------------
+
+    public void registerAdd(EventHandler<ActionEvent> h)
+    {
+        add_.setOnAction(h);
+    }
+
+    public void registerRemove(RemoveHandler h)
+    {
+        remove_.setOnAction(e ->
+        {
+            Entry entry = table_.getSelectionModel().getSelectedItem();
+            
+            if(entry != null) h.act(entry);
+        });
+    }
+    
+    public void registerCommit(EventHandler<ActionEvent> h)
+    {
+        commit_.setOnAction(h);
+    }
+    
+    public void registerRollback(EventHandler<ActionEvent> h)
+    {
+        rollback_.setOnAction(h);
+    }
+    
     public void registerDisconnect(EventHandler<ActionEvent> h)
     {
         disconnect_.setOnAction(h);
     }
     
-//    public void loadRelation(Relation r)
-//    {
-//    }
+    public void registerSelect(SelectHandler h)
+    {
+        select_.valueProperty().addListener((o, ov, nv) ->
+        {
+            if(nv != null && !nv.isEmpty())
+            {
+                h.act(nv);
+            }
+        });
+//        select_.setOnAction(e ->
+//        {
+//            String id = select_.getSelectionModel().getSelectedItem();
+//            
+//            if(id != null && !id.isEmpty())
+//            {
+//                h.act(id);
+//            }
+//        });
+    }
+    
+    // # ----------------------------------------------------------------------
+    
+    public void setSelection(List<String> s)
+    {
+        select_.setItems(FXCollections.observableList(s));
+        clear();
+    }
+
+    public void load(List<String> cs, ObservableList<Entry> rs)
+    {
+        table_.getColumns().clear();
+        table_.setItems(rs);
+        
+        for(String n : cs)
+        {
+            TableColumn<Entry, String> c = new TableColumn<>(n);
+            
+            c.setCellValueFactory(p -> p.getValue().getProperty(n));
+            c.setComparator(new StringDecimalComparator());
+            
+            table_.getColumns().add(c);
+        }
+        
+        setEnabled(true);
+    }
+    
+    public void setEnabled(boolean f)
+    {
+        for(Node n : active_)
+        {
+            n.setDisable(!f);
+        }
+    }
+    
+    public void clear()
+    {
+        table_.setItems(null);
+        select_.setValue(null);
+        setEnabled(false);
+        table_.getColumns().clear();
+    }
+    
+    // # ======================================================================
     
     private Node createUI()
     {
@@ -75,7 +162,6 @@ public class ConnectedUI
         
         pane.add(createSelect(), 0, 0);
         pane.add(createLinks(), 2, 0);
-//        pane.add(createScrollPane(), 0, 1, 3, 1);
         pane.add(table_ = new TableView<>(), 0, 1, 3, 1);
         pane.add(createButtons(), 0, 2, 3, 1);
         
@@ -102,114 +188,45 @@ public class ConnectedUI
         pane.setAlignment(Pos.CENTER_RIGHT);
         pane.setSpacing(10);
         
-        return pane;
-    }
-    
-    private Node createScrollPane()
-    {
-        ScrollPane pane = new ScrollPane();
-
-        pane.setHbarPolicy(ScrollBarPolicy.NEVER);
-        pane.setVbarPolicy(ScrollBarPolicy.NEVER);
-        pane.setFitToHeight(true);
-        pane.setFitToWidth(true);
-        
-        pane.setContent(createScrollContent());
-        
-        return pane;
-    }
-    
-    private Node createScrollContent()
-    {
-        BorderPane pane = new BorderPane();
-        
-        pane.setCenter(table_ = new TableView<>());
-        pane.setBottom(createInnerButtons());
-
-        pane.prefHeightProperty().bind(table_.prefHeightProperty());
-        pane.prefWidthProperty().bind(table_.prefWidthProperty());
-        
-        return pane;
-    }
-    
-    private Node createInnerButtons()
-    {
-        HBox pane = new HBox();
-        
-        pane.setAlignment(Pos.CENTER_LEFT);
-        pane.setSpacing(10);
-        
-        pane.getChildren().add(add_ = new Button("Add"));
-//        pane.getChildren().add(clear_ = new Button("Clear"));
+        active_.add(pane);
         
         return pane;
     }
     
     private Node createButtons()
     {
-        GridPane pane = new GridPane();
+        BorderPane pane = new BorderPane();
         
-        pane.setHgap(10);
-
-        ColumnConstraints cc = new ColumnConstraints();
-        ColumnConstraints ce = new ColumnConstraints();
-        ce.setHgrow(Priority.ALWAYS);
-        pane.getColumnConstraints().addAll(cc, cc, ce, cc);
-        
-        pane.add(commit_ = new Button("Commit"), 0, 0);
-        pane.add(rollback_ = new Button("Rollback"), 1, 0);
-        pane.add(disconnect_ = new Button("Disconnect"), 3, 0);
+        pane.setLeft(createButtonPane());
+        pane.setRight(disconnect_ = new Button("Disconnect"));
         
         return pane;
     }
     
-//    
-//    public ConnectedUI()
-//    {
-//        pane_ = createUI();
-//    }
-//    
-//    public Node getUI()
-//    {
-//        return pane_;
-//    }
-    
-    public void load(List<String> cs, ObservableList<Entry> rs)
+    private Node createButtonPane()
     {
-        table_.setItems(rs);
+        TilePane pane = new TilePane();
         
-        for(String n : cs)
-        {
-            TableColumn<Entry, String> c = new TableColumn<>(n);
-            
-            c.setCellValueFactory(p -> p.getValue().getProperty(n));
-            c.setComparator(new StringDecimalComparator());
-            
-            table_.getColumns().add(c);
-        }
+        pane.setOrientation(Orientation.HORIZONTAL);
+        pane.setHgap(10);
+
+        add_ = new Button("Add");
+        remove_ = new Button("Remove");
+        commit_ = new Button("Commit");
+        rollback_ = new Button("Rollback");
+
+        add_.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        remove_.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        commit_.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        rollback_.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        
+        pane.getChildren().addAll(add_, remove_, commit_, rollback_);
+        
+        active_.add(pane);
+
+        return pane;
     }
-    
-//    public void loadRelation(Relation r)
-//    {
-//        table_.setItems(FXCollections.observableList(r.getRows()));
-//        
-//        for(String n : r.getColumns())
-//        {
-//            TableColumn<Relation.Row, String> c = new TableColumn<>(n);
-//            c.setCellValueFactory(p -> new SimpleStringProperty(p.getValue().get(n)));
-//            c.setComparator(new StringDecimalComparator());
-//            table_.getColumns().add(c);
-//        }
-//    }
-//    
-//    private TableView<Relation.Row> createUI()
-//    {
-//        TableView<Relation.Row> pane = new TableView<>();
-//        
-//        return pane;
-//    }
-//    
-//    public void registerDisconnect(EventHandler<ActionEvent> h)
-//    {
-//    }
+
+    public static interface RemoveHandler { void act(Entry e); }
+    public static interface SelectHandler { void act(String s); }
 }

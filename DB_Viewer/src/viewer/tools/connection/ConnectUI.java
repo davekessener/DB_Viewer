@@ -9,6 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -19,9 +20,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.TilePane;
 
 class ConnectUI
 {
@@ -130,14 +131,19 @@ class ConnectUI
     
     private Node createButtons()
     {
-        HBox pane = new HBox();
+        TilePane pane = new TilePane();
         
-        pane.setSpacing(10);
+        pane.setOrientation(Orientation.HORIZONTAL);
+        pane.setHgap(10);
         pane.setAlignment(Pos.BOTTOM_RIGHT);
 
         pane.getChildren().add(test_ = new Button(Literals.Get(Strings.B_ESTABLISH_TEST)));
         pane.getChildren().add(connect_ = new Button(Literals.Get(Strings.B_ESTABLISH_CONNECT)));
         pane.getChildren().add(cancel_ = new Button(Literals.Get(Strings.B_ESTABLISH_CANCEL)));
+
+        test_.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        connect_.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        cancel_.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         
         return pane;
     }

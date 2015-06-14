@@ -1,7 +1,6 @@
 package viewer.tools.viewer;
 
 import viewer.literals.language.Literals;
-import viewer.tools.ui.Alert;
 import viewer.tools.ui.Indicator;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -36,12 +35,6 @@ public class IndicatorUI implements Indicator
     }
     
     // # ----------------------------------------------------------------------
-
-    @Override
-    public void alert(Alert.AlertType type, String title, String msg)
-    {
-        displayAlert(type, title, null, msg);
-    }
     
     @Override
     public void setInfo(String s)
@@ -86,14 +79,5 @@ public class IndicatorUI implements Indicator
         pane.getChildren().add(info_ = new Label());
         
         return pane;
-    }
-
-    private void displayAlert(Alert.AlertType type, String title, String header, String msg)
-    {
-        Alert alert = new Alert(type);
-        alert.setTitle(Literals.Get(title));
-        alert.setHeaderText(Literals.Get(header));
-        alert.setContentText(Literals.Get(msg));
-        alert.showAndWait();
     }
 }

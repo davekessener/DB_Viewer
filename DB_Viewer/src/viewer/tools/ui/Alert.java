@@ -2,6 +2,8 @@ package viewer.tools.ui;
 
 import org.controlsfx.dialog.Dialogs;
 
+import viewer.literals.language.Literals;
+
 @SuppressWarnings("deprecation")
 public class Alert
 {
@@ -48,6 +50,16 @@ public class Alert
     public static void ShowExceptionError(String title, String msg, Throwable t)
     {
         Dialogs.create().title(title).message(msg).showException(t);
+    }
+
+
+    public static void DisplayAlert(Alert.AlertType type, String title, String header, String msg)
+    {
+        Alert alert = new Alert(type);
+        alert.setTitle(Literals.Get(title));
+        alert.setHeaderText(Literals.Get(header));
+        alert.setContentText(Literals.Get(msg));
+        alert.showAndWait();
     }
     
     public static enum AlertType
