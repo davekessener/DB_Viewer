@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import viewer.materials.Entry;
 import viewer.tools.StringDecimalComparator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;

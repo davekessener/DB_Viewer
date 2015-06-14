@@ -1,4 +1,4 @@
-package viewer.literals;
+package viewer.materials;
 
 import static org.junit.Assert.*;
 

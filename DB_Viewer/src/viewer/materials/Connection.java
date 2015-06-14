@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import viewer.exception.ConnectionFailureException;
-import viewer.literals.Relation;
 import viewer.literals.URL;
 import viewer.service.Logger;
 

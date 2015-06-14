@@ -1,4 +1,4 @@
-package viewer.tools.table;
+package viewer.materials;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import viewer.literals.Relation;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 

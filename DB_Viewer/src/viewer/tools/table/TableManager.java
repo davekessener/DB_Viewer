@@ -5,8 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import viewer.literals.Relation;
+import viewer.materials.Entry;
 import viewer.materials.Pair;
+import viewer.materials.Relation;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 

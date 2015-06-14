@@ -5,9 +5,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import viewer.literals.Password;
-import viewer.literals.Relation;
 import viewer.literals.URL;
 import viewer.materials.Connection;
+import viewer.materials.Relation;
 
 public class ConnectionServiceTest
 {

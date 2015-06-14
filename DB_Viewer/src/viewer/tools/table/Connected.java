@@ -5,10 +5,11 @@ import java.util.List;
 
 import javafx.scene.Node;
 import viewer.exception.ConnectionFailureException;
-import viewer.literals.Relation;
 import viewer.literals.language.Strings;
 import viewer.materials.Connection;
+import viewer.materials.Entry;
 import viewer.materials.Pair;
+import viewer.materials.Relation;
 import viewer.service.connection.ConnectionService;
 import viewer.service.connection.Future;
 import viewer.service.connection.VoidTask;
