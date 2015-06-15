@@ -1,37 +1,39 @@
 package viewer.tools.table;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import viewer.materials.Entry;
-import viewer.materials.Pair;
 import viewer.materials.Relation;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class TableManager
 {
-    private List<String> tables_;
-    private Map<String, Pair<List<String>, ObservableList<Entry>>> relations_;
+    private List<String> names_;
+    private Map<String, Relation> relations_;
+    private Map<String, ObservableList<Entry>> tables_;
     
-    public TableManager(List<String> tables)
+    public TableManager(List<String> names)
     {
-        this.tables_ = new ArrayList<>(tables);
+        this.names_ = new ArrayList<>(names);
         this.relations_ = new HashMap<>();
+        this.tables_ = new HashMap<>();
     }
     
-    public List<String> getTables()
+    public List<String> getNames()
     {
-        return tables_;
+        return Collections.unmodifiableList(names_);
     }
     
     public String getTable(Entry e)
     {
-        for(Map.Entry<String, Pair<List<String>, ObservableList<Entry>>> v : relations_.entrySet())
+        for(Map.Entry<String, ObservableList<Entry>> v : tables_.entrySet())
         {
-            if(v.getValue().second.contains(e)) return v.getKey();
+            if(v.getValue().contains(e)) return v.getKey();
         }
         
         throw new Error("Entry now known!");
@@ -41,20 +43,15 @@ public class TableManager
     {
         assert knowsTable(id) : "Precondition violated: knowsTable(id)";
         
-        List<String> columns = relation.getColumns();
-        List<Entry> rows = new ArrayList<>();
+        List<Entry> rows = new ArrayList<>(relation.getRows());
         
-        for(Relation.Row row : relation)
-        {
-            rows.add(new Entry(columns, row));
-        }
-        
-        relations_.put(id, new Pair<>(columns, FXCollections.observableList(rows)));
+        relations_.put(id, relation);
+        tables_.put(id, FXCollections.observableList(rows));
     }
     
     public boolean knowsTable(String id)
     {
-        return tables_.contains(id);
+        return names_.contains(id);
     }
     
     public boolean hasRelation(String id)
@@ -66,13 +63,20 @@ public class TableManager
     {
         assert hasRelation(id) : "Precondition violated: knowsTable(id)";
         
-        return relations_.get(id).first;
+        return relations_.get(id).getColumns();
     }
     
     public ObservableList<Entry> getRows(String id)
     {
         assert hasRelation(id) : "Precondition violated: knowsTable(id)";
         
-        return relations_.get(id).second;
+        return tables_.get(id);
+    }
+    
+    public Relation getRelation(String id)
+    {
+        assert hasRelation(id) : "Precondition violated: hasRelation(id)";
+        
+        return relations_.get(id);
     }
 }

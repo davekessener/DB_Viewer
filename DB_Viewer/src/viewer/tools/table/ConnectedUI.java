@@ -1,5 +1,6 @@
 package viewer.tools.table;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -16,9 +17,14 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -31,7 +37,7 @@ public class ConnectedUI
 {
     private Node pane_;
     private ComboBox<String> select_;
-    private Button add_, remove_, commit_, rollback_;
+    private Button add_, remove_;
     private Button disconnect_;
     private TableView<Entry> table_;
     private Set<Node> active_;
@@ -40,6 +46,8 @@ public class ConnectedUI
     {
         active_ = new HashSet<Node>();
         pane_ = createUI();
+        
+        configure();
     }
     
     public Node getUI()
@@ -58,20 +66,10 @@ public class ConnectedUI
     {
         remove_.setOnAction(e ->
         {
-            Entry entry = table_.getSelectionModel().getSelectedItem();
+            List<Entry> entries = table_.getSelectionModel().getSelectedItems();
             
-            if(entry != null) h.act(entry);
+            if(!entries.isEmpty()) h.act(entries);
         });
-    }
-    
-    public void registerCommit(EventHandler<ActionEvent> h)
-    {
-        commit_.setOnAction(h);
-    }
-    
-    public void registerRollback(EventHandler<ActionEvent> h)
-    {
-        rollback_.setOnAction(h);
     }
     
     public void registerDisconnect(EventHandler<ActionEvent> h)
@@ -88,15 +86,6 @@ public class ConnectedUI
                 h.act(nv);
             }
         });
-//        select_.setOnAction(e ->
-//        {
-//            String id = select_.getSelectionModel().getSelectedItem();
-//            
-//            if(id != null && !id.isEmpty())
-//            {
-//                h.act(id);
-//            }
-//        });
     }
     
     // # ----------------------------------------------------------------------
@@ -116,7 +105,7 @@ public class ConnectedUI
         {
             TableColumn<Entry, String> c = new TableColumn<>(n);
             
-            c.setCellValueFactory(p -> p.getValue().getProperty(n));
+            c.setCellValueFactory(p -> p.getValue().getValue(n));
             c.setComparator(new StringDecimalComparator());
             
             table_.getColumns().add(c);
@@ -141,7 +130,20 @@ public class ConnectedUI
         table_.getColumns().clear();
     }
     
+    public String getSelected()
+    {
+        return select_.getSelectionModel().getSelectedItem();
+    }
+    
     // # ======================================================================
+    
+    private void configure()
+    {
+        table_.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        
+        remove_.disableProperty().bind(table_.getSelectionModel().selectedItemProperty().isNull());
+        add_.disableProperty().bind(select_.getSelectionModel().selectedItemProperty().isNull());
+    }
     
     private Node createUI()
     {
@@ -163,9 +165,9 @@ public class ConnectedUI
         
         pane.add(createSelect(), 0, 0);
         pane.add(createLinks(), 2, 0);
-        pane.add(table_ = new TableView<>(), 0, 1, 3, 1);
+        pane.add(createTable(), 0, 1, 3, 1);
         pane.add(createButtons(), 0, 2, 3, 1);
-        
+
         return pane;
     }
     
@@ -194,6 +196,42 @@ public class ConnectedUI
         return pane;
     }
     
+    private Node createTable()
+    {
+        ContextMenu cm = new ContextMenu();
+        table_ = new TableView<>();
+
+        MenuItem selectAll = new MenuItem("Select all");
+        MenuItem unselectAll = new MenuItem("Unselect all");
+        MenuItem inverseSelect = new MenuItem("Inverse selection");
+        
+        selectAll.setOnAction(e -> table_.getSelectionModel().selectAll());
+        unselectAll.setOnAction(e -> table_.getSelectionModel().clearSelection());
+        inverseSelect.setOnAction(e -> 
+        {
+            List<Entry> all = new ArrayList<>(table_.getItems());
+            List<Entry> selected = table_.getSelectionModel().getSelectedItems();
+            
+            for(Entry entry : selected)
+            {
+                all.remove(entry);
+            }
+            
+            table_.getSelectionModel().clearSelection();
+            
+            for(Entry entry : all)
+            {
+                table_.getSelectionModel().select(entry);
+            }
+        });
+        
+        cm.getItems().addAll(selectAll, unselectAll, inverseSelect);
+        
+        table_.setContextMenu(cm);
+
+        return table_;
+    }
+    
     private Node createButtons()
     {
         BorderPane pane = new BorderPane();
@@ -213,21 +251,17 @@ public class ConnectedUI
 
         add_ = new Button("Add");
         remove_ = new Button("Remove");
-        commit_ = new Button("Commit");
-        rollback_ = new Button("Rollback");
 
         add_.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         remove_.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        commit_.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        rollback_.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         
-        pane.getChildren().addAll(add_, remove_, commit_, rollback_);
+        pane.getChildren().addAll(add_, remove_);
         
         active_.add(pane);
 
         return pane;
     }
 
-    public static interface RemoveHandler { void act(Entry e); }
+    public static interface RemoveHandler { void act(List<Entry> e); }
     public static interface SelectHandler { void act(String s); }
 }

@@ -13,6 +13,7 @@ import viewer.materials.Relation;
 import viewer.service.connection.ConnectionService;
 import viewer.service.connection.Future;
 import viewer.service.connection.VoidTask;
+import viewer.service.connection.Void;
 import viewer.tools.ui.Alert;
 import viewer.tools.ui.Alert.AlertType;
 import viewer.tools.ui.Indicator;
@@ -55,29 +56,33 @@ public class Connected
     {
     }
     
-    private void remove(Entry e)
+    private void remove(List<Entry> rows)
     {
-        String table = tables_.getTable(e);
-        List<String> fs = new ArrayList<String>();
+        List<String> queries = new ArrayList<String>();
+        String table = ui_.getSelected();
         
-        for(String k : e.getColumns())
+        for(Entry e : rows)
         {
-            fs.add(k + " = '" + e.get(k) + "'");
+            String t = tables_.getTable(e);
+            List<String> fs = new ArrayList<String>();
+            
+            for(String k : e.getColumns())
+            {
+                fs.add(k + " = " + Connection.FormatElement(e.getItem(k), e.getType(k)));
+            }
+            
+            queries.add("DELETE FROM " + t + " WHERE " + String.join(" AND ", fs));
         }
         
-        String s = "DELETE FROM " + table + " WHERE " + String.join(", ", fs);
-        
-        service_.request(connection_, (Connection c) -> c.modify(s));
+        Alert.DisplayYesNoDialog("Cornifm", "rly dlete?", r ->
+        {
+            if(r == Alert.Response.YES)
+            {
+                service_.request(connection_, (Connection c) -> c.executeAll(queries)).onDone(f -> evaluateDelete(f, table));
+            }
+        });
     }
     
-    private void commit()
-    {
-    }
-    
-    private void rollback()
-    {
-    }
-
     private void disconnect()
     {
         assert disconnect_ != null : "Vorbedingung verletzt: disconnect_ != null";
@@ -98,8 +103,6 @@ public class Connected
     {
         ui_.registerAdd(e -> add());
         ui_.registerRemove(e -> remove(e));
-        ui_.registerCommit(e -> commit());
-        ui_.registerRollback(e -> rollback());
         ui_.registerDisconnect(e -> disconnect());
         ui_.registerSelect(s -> select(s));
     }
@@ -145,6 +148,17 @@ public class Connected
 
     // # ----------------------------------------------------------------------
     
+    private void evaluateDelete(Future<Void> f, String table)
+    {
+        evaluate(() ->
+        {
+            f.get();
+            select(table);
+        });
+    }
+    
+    // # ----------------------------------------------------------------------
+    
     private void evaluateTable(Future<Pair<String, Relation>> f)
     {
         evaluate(() ->
@@ -174,15 +188,16 @@ public class Connected
         {
             List<String> tbllist = new ArrayList<>();
             Relation tables = f.get();
+            String id = tables.getColumns().get(0);
             
-            for(Relation.Row r : tables)
+            for(Entry r : tables)
             {
-                tbllist.add(r.get(0));
+                tbllist.add(r.getValue(id).get());
             }
             
             tables_ = new TableManager(tbllist);
             
-            ui_.setSelection(tables_.getTables());
+            ui_.setSelection(tables_.getNames());
             
             indicator_.setInfo(null);
             indicator_.setEnabled(true); 

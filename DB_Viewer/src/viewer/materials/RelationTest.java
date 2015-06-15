@@ -13,43 +13,45 @@ public class RelationTest
         String[] cols = new String[] {"ID", "Name"};
         String[][] rows = new String[][] {{"10", "Tetsu"}, {"5", "Aho"}};
         
-        assertFalse(f.isFilling());
-        assertFalse(f.isDone());
+//        assertFalse(f.isFilling());
+//        assertFalse(f.isDone());
         
         for(String s : cols)
         {
-            f.addColumn(s);
+            f.addColumn(s, String.class);
         }
         
-        assertFalse(f.isFilling());
-        assertFalse(f.isDone());
+//        assertFalse(f.isFilling());
+//        assertFalse(f.isDone());
         
         for(String[] ss : rows)
         {
             f.addRow(ss);
         }
         
-        assertTrue(f.isFilling());
-        assertFalse(f.isDone());
+//        assertTrue(f.isFilling());
+//        assertFalse(f.isDone());
         
-        Relation r = f.finish();
+        Relation r = f.produce();
         
         assertNotNull(r);
         
-        assertFalse(f.isFilling());
-        assertTrue(f.isDone());
+//        assertFalse(f.isFilling());
+//        assertTrue(f.isDone());
         
-        Relation.Row firstrow = r.getRow(0);
+        Entry firstrow = r.getRows().get(0);
         
         assertNotNull(firstrow);
         
-        assertEquals(firstrow.get("name"), rows[0][1]);
+        assertEquals(firstrow.getValue("Name").get(), rows[0][1]);
+        
+        String firstColumnName = r.getColumns().get(1);
         
         int i = 0;
-        for(Relation.Row row : r)
+        for(Entry row : r)
         {
-            assertEquals(row.get("ID"), rows[i][0]);
-            assertEquals(row.get(1), rows[i][1]);
+            assertEquals(row.getValue("ID").get(), rows[i][0]);
+            assertEquals(row.getValue(firstColumnName).get(), rows[i][1]);
             ++i;
         }
     }

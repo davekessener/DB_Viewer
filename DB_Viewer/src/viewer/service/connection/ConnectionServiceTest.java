@@ -28,7 +28,14 @@ public class ConnectionServiceTest
             {
                 Relation r = c.query("SELECT Nachname FROM Kunde WHERE Vorname = 'Daiki'");
                 
-                return r.getRow(0).get(0);
+//                String s = new java.sql.Timestamp(115, 5, 15, 0, 0, 0, 0).toString().split("\\.")[0];
+//                String s = new TIMESTAMP(new java.sql.Timestamp(93, 11, 25, 0, 0, 0, 0)).toString();
+                
+//                c.modify("CREATE TABLE Types (anumber NUMBER, avarchar varchar2(40), adate DATE, atimestamp TIMESTAMP, PRIMARY KEY (anumber))");
+//                c.modify("INSERT INTO Types values (1, 'astring', to_date('2015-06-15', 'YYYY-MM-DD'), to_timestamp('1993-12-25', 'YYYY-MM-DD'))");
+//                r = c.query("SELECT avarchar FROM Types WHERE atimestamp = to_timestamp('" + s + "', 'YYYY-MM-DD HH24:MI:SS.FF')");
+
+                return r.getRows().get(0).getValue(r.getColumns().get(0)).get();
             });
             
             do

@@ -2,371 +2,180 @@ package viewer.materials;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
-public class Relation implements Iterable<Relation.Row>
+public class Relation implements Iterable<Entry>
 {
-    private String[] cols_;
-    private List<String[]> rows_;
-    private Map<String, Integer> pos_;
+    private List<String> cols_;
+    private List<Class<?>> types_;
+    private List<Entry> rows_;
     
-    private Relation(String[] cols)
+    private Relation(List<String> names, List<Class<?>> types, List<Object[]> items)
     {
-        assert cols != null : "Precondition violated: cols_ != null";
+        this.cols_ = new ArrayList<>(names);
+        this.types_ = new ArrayList<>(types);
+        this.rows_ = new ArrayList<>();
         
-        cols_ = cols;
-        rows_ = new ArrayList<>();
-        pos_ = new HashMap<>();
-        
-        for(int i = 0 ; i < cols_.length ; ++i)
+        for(Object[] o : items)
         {
-            pos_.put(cols_[i], i);
+            rows_.add(new Entry(names, types, Arrays.asList(o)));
         }
     }
     
-    public int colCount() { return cols_.length; }
-    public int rowCount() { return rows_.size(); }
-    
-    private void addRow(String[] row)
-    {
-        assert row != null : "Vorbedingung verletzt: row != null";
-        assert row.length == cols_.length : "Precondition violated: row.length == cols_.length";
-        
-        rows_.add(row);
-    }
+    public int getColCount() { return cols_.size(); }
+    public int getRowCount() { return rows_.size(); }
     
     public List<String> getColumns()
     {
-        return Arrays.asList(cols_);
+        return Collections.unmodifiableList(cols_);
     }
     
-    public List<Row> getRows()
+    public List<Class<?>> getTypes()
     {
-        return rows_.stream().map(Row::new).collect(Collectors.toList());
+        return Collections.unmodifiableList(types_);
     }
     
-    public Row getRow(int i)
+    public List<Entry> getRows()
     {
-        assert i >= 0 && i < rows_.size() : "Precondition violated: i > 0 && i < rows_.size()";
-        
-        return new Row(rows_.get(i));
+        return Collections.unmodifiableList(rows_);
     }
-
+    
     @Override
-    public Iterator<Row> iterator()
+    public Iterator<Entry> iterator()
     {
-        return new RowIterator();
+        return rows_.iterator();
     }
     
-    public class Row implements Iterable<String>
-    {
-        private String[] row_;
-        
-        private Row(String[] row) { row_ = row; }
-        
-        public String get(String name)
-        {
-            name = name.toUpperCase();
-            
-            assert pos_.containsKey(name) : "Precondition violated: pos_.containsKey(name)";
-            
-            return row_[pos_.get(name)];
-        }
-        
-        public String get(int i)
-        {
-            return row_[i];
-        }
-        
-        public int size()
-        {
-            return row_.length;
-        }
-
-        @Override
-        public Iterator<String> iterator()
-        {
-            return new CellIterator();
-        }
-        
-        public class CellIterator implements Iterator<String>
-        {
-            private int i_ = 0;
-
-            @Override
-            public boolean hasNext()
-            {
-                return i_ < row_.length;
-            }
-
-            @Override
-            public String next()
-            {
-                return row_[i_++];
-            }
-        }
-    }
-    
-    public class RowIterator implements Iterator<Row>
-    {
-        private int i_ = 0;
-        
-        @Override
-        public boolean hasNext()
-        {
-            return i_ < rowCount();
-        }
-
-        @Override
-        public Row next()
-        {
-            return getRow(i_++);
-        }
-    }
+    // # ----------------------------------------------------------------------
     
     public static Factory GetFactory() { return new Factory(); }
     
     public static class Factory
     {
-        private List<String> cols_;
-        private Relation rel_;
-        private boolean done_;
+        private Stage stage_ = new Stage1();
         
-        private Factory()
+        private Factory() { }
+        
+        public void addColumn(String name, Class<?> type)
         {
-            cols_ = new ArrayList<String>();
-            rel_ = null;
-            done_ = false;
+            stage_.addColumn(name, type);
         }
         
-        public boolean isFilling() { return rel_ != null; }
-        public boolean isDone() { return done_; }
-        
-        public boolean hasColumn(String s) { return cols_.contains(s); }
-        
-        public void addColumn(String name)
+        public void addRow(Object[] items)
         {
-            name = name.toUpperCase();
-            
-            assert !isFilling() : "Precondition violated: !isFilling()";
-            assert !isDone() : "Precondition violated: !isDone()";
-            assert !hasColumn(name) : "Precondition violated: !hasColumn(name)";
-            
-            cols_.add(name);
+            stage_.addRow(items);
         }
         
-        public void addRow(String[] row)
+        public Relation produce()
         {
-            assert !isDone() : "Precondition violated: !isDone()";
-            
-            init();
-            
-            rel_.addRow(row);
+            return stage_.produce();
         }
         
-        public Relation finish()
+        private interface Stage
         {
-            assert !isDone() : "Precondition violated: !isDone()";
-            
-            init();
-            
-            Relation r = rel_;
-            
-            done_ = true;
-            rel_ = null;
-            
-            return r;
+            void addColumn(String name, Class<?> type);
+            void addRow(Object[] items);
+            Relation produce();
         }
         
-        private void init()
+        // # ==================================================================
+        
+        private class Stage1 implements Stage
         {
-            if(!isFilling())
+            protected List<String> names_ = new ArrayList<>();
+            protected List<Class<?>> types_ = new ArrayList<>();
+            
+            @Override
+            public void addColumn(String name, Class<?> type)
             {
-                rel_ = new Relation(cols_.toArray(new String[cols_.size()]));
-                cols_ = null;
+                assert !names_.contains(name) : "Precondition violated: !names_.contains(name)";
+                
+                names_.add(name);
+                types_.add(type);
+            }
+
+            @Override
+            public void addRow(Object[] items)
+            {
+                stage_ = new Stage2(this);
+                stage_.addRow(items);
+            }
+
+            @Override
+            public Relation produce()
+            {
+                return (new Stage2(this)).produce();
+            }
+        }
+        
+        private class Stage2 implements Stage
+        {
+            protected List<String> names_;
+            protected List<Class<?>> types_;
+            protected List<Object[]> items_;
+            
+            public Stage2(Stage1 s)
+            {
+                names_ = s.names_; s.names_ = null;
+                types_ = s.types_; s.types_ = null;
+                items_ = new ArrayList<>();
+            }
+
+            @Override
+            public void addColumn(String name, Class<?> type)
+            {
+                throw new Error("Tried to add column after stage 1!");
+            }
+
+            @Override
+            public void addRow(Object[] items)
+            {
+                assert names_.size() == items.length : "Precondition violated: cols_.size() == items.length";
+                assert types_.size() == items.length : "Precondition violated: cols_.size() == items.length";
+                
+                for(int i = 0 ; i < items.length ; ++i)
+                {
+//                    System.out.println(String.format("'%s instanceof %s' should hold", 
+//                    types_.get(i).toGenericString(), items[i].getClass().toGenericString()));
+                    assert types_.get(i).isAssignableFrom(items[i].getClass()) : 
+                        "Precondition violated: item instanceof type";
+                }
+                
+                items_.add(items);
+            }
+
+            @Override
+            public Relation produce()
+            {
+                Relation r = new Relation(names_, types_, items_);
+                
+                stage_ = new Stage3();
+                
+                return r;
+            }
+        }
+        
+        private class Stage3 implements Stage
+        {
+            @Override
+            public void addColumn(String name, Class<?> type)
+            {
+                throw new Error("Called 'addColumn' after production.");
+            }
+
+            @Override
+            public void addRow(Object[] items)
+            {
+                throw new Error("Called 'addRow' after production.");
+            }
+
+            @Override
+            public Relation produce()
+            {
+                throw new Error("Called 'produce' after production.");
             }
         }
     }
 }
-
-//import java.util.ArrayList;
-//import java.util.Collection;
-//import java.util.Iterator;
-//import java.util.List;
-//
-//public class Relation implements Iterable<List<Object>>
-//{
-//    private final Column[] cols_;
-//    
-//    private Relation(List<String> ns, List<Class<?>> cs)
-//    {
-//        assert ns.size() == cs.size() : "Precondition violated: ns.size() == cs.size()";
-//        assert ns != null : "Precondition violated: ns != null";
-//
-//        cols_ = new Column[ns.size()];
-//        
-//        for(int i = 0 ; i < cols_.length ; ++i)
-//        {
-//            cols_[i] = new Column(ns.get(i), cs.get(i));
-//        }
-//    }
-//    
-//    private void addRow(Collection<Object> r)
-//    {
-//        assert r.size() == cols_.length : "Precondition violated: r.size() == cols_.length";
-//        
-//        int i = 0;
-//        for(Object o : r)
-//        {
-//            cols_[i++].add(o);
-//        }
-//    }
-//    
-//    public String getColumnName(int i)
-//    {
-//        return cols_[i].getName();
-//    }
-//    
-//    public List<Object> getRow(int i)
-//    {
-//        assert i < rowCount() : "Precondition violated: i < rowCount()";
-//        
-//        List<Object> row = new ArrayList<Object>(colCount());
-//        
-//        for(Column c : cols_)
-//        {
-//            row.add(c.get(i));
-//        }
-//        
-//        return row;
-//    }
-//    
-//    public int colCount() { return cols_.length; }
-//    public int rowCount() { return colCount() > 0 ? cols_[0].size() : 0; }
-//
-//    @Override
-//    public Iterator<List<Object>> iterator()
-//    {
-//        return new RowIterator();
-//    }
-//    
-//    public class RowIterator implements Iterator<List<Object>>
-//    {
-//        private int i_ = 0;
-//
-//        @Override
-//        public boolean hasNext()
-//        {
-//            return i_ < rowCount();
-//        }
-//
-//        @Override
-//        public List<Object> next()
-//        {
-//            return getRow(i_++);
-//        }
-//    }
-//    
-//    private static class Column
-//    {
-//        private final String name_;
-//        private final Class<?> class_;
-//        private List<Object> content_;
-//        
-//        public Column(String name, Class<?> c)
-//        {
-//            assert name != null : "Vorbedingung verletzt: name != null";
-//            
-//            if(name.isEmpty())
-//                throw new RuntimeException("ERR: Empty Attribute Name");
-//            
-//            this.name_ = name;
-//            this.class_ = c;
-//            this.content_ = new ArrayList<Object>();
-//        }
-//        
-//        public String getName() { return name_; }
-//        public int size() { return content_.size(); }
-//        
-//        public Object get(int i)
-//        {
-//            return content_.get(i);
-//        }
-//        
-//        public void add(Object o)
-//        {
-//            assert class_.isInstance(o) : "Precondition violated: t instanceof class_";
-//            
-//            content_.add(o);
-//        }
-//    }
-//    
-//    public static Factory GetFactory()
-//    {
-//        return new Factory();
-//    }
-//    
-//    public static class Factory
-//    {
-//        private List<String> cn_;
-//        private List<Class<?>> cc_;
-//        private Relation rel_;
-//        private boolean done_;
-//        
-//        private Factory()
-//        {
-//            cn_ = new ArrayList<String>();
-//            cc_ = new ArrayList<Class<?>>();
-//            rel_ = null;
-//            done_ = false;
-//        }
-//        
-//        public boolean isFilling() { return rel_ != null; }
-//        public boolean isDone() { return done_; }
-//        
-//        public Relation finish()
-//        {
-//            assert !isDone() : "Precondition violated: !isDone()";
-//            init();
-//            
-//            Relation r = rel_;
-//            
-//            done_ = true;
-//            rel_ = null;
-//            
-//            return r;
-//        }
-//        
-//        public void addColumn(String name, Class<?> c)
-//        {
-//            assert !isDone() : "Precondition violated: !isDone()";
-//            assert !isFilling() : "Precondition violated: !isFilling()";
-//            assert !cn_.contains(name.toLowerCase()) : "Precondition violated: !cn_.contains(name.toLowerCase())";
-//            
-//            cn_.add(name.toLowerCase());
-//            cc_.add(c);
-//        }
-//        
-//        public void addRow(Collection<Object> v)
-//        {
-//            assert !isDone() : "Precondition violated: !isDone()";
-//            init();
-//            
-//            rel_.addRow(v);
-//        }
-//        
-//        private void init()
-//        {
-//            if(!isFilling())
-//            {
-//                rel_ = new Relation(cn_, cc_);
-//                cn_ = null;
-//                cc_ = null;
-//            }
-//        }
-//    }
-//}

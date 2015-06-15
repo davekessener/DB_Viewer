@@ -1,5 +1,7 @@
 package viewer.materials;
 
+import java.math.BigDecimal;
+
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -9,6 +11,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 import viewer.exception.ConnectionFailureException;
 import viewer.literals.URL;
@@ -83,12 +86,42 @@ public class Connection
         catch(ConnectionFailureException | SQLException e) { }
     }
     
+    public synchronized void execute(String query) throws ConnectionFailureException
+    {
+        String id = query.split("[ \t]+")[0];
+        
+        if(QUERIES.contains(id)) query(query);
+        else if(UPDATES.contains(id)) modify(query);
+        else throw new Error("Unknown sql query: \"" + query +"\"!");
+    }
+    
+    public synchronized void executeAll(List<String> queries) throws ConnectionFailureException
+    {
+        try
+        {
+            Statement s = con_.createStatement();
+            
+            for(String q : queries)
+            {
+                assert UPDATES.contains(q.split("[ \t]+")[0]) : "Precondition violated: query is UPDATE";
+                
+                s.addBatch(q);
+            }
+            
+            s.executeBatch();
+        }
+        catch(SQLException e)
+        {
+            throw new ConnectionFailureException(GetFailure(e.getErrorCode()));
+        }
+    }
+
     public synchronized Relation query(String query) throws ConnectionFailureException
     {
         assert connected() : "Precondition violated: connected()";
         assert QUERIES.contains(query.split("[ \t]+")[0]) : "Precondition violated: QUERIES.contains(query)";
         
-        Logger.Log("Querying connection %d for '%s'", id_, query);
+        Logger.Log("Querying connection %d for \"%s\"", id_, query);
         
         try
         {
@@ -108,6 +141,8 @@ public class Connection
     {
         assert connected() : "Precondition violated: connected()";
         assert UPDATES.contains(query.split("[ \t]+")[0]) : "Precondition violated: UPDATES.contains(query)";
+
+        Logger.Log("Querying connection %d for \"%s\"", id_, query);
         
         try
         {
@@ -132,16 +167,29 @@ public class Connection
         
         for(int i = 0 ; i < l ; ++i)
         {
-            f.addColumn(m.getColumnName(i + 1));
+            Class<?> c;
+            
+            try
+            {
+                c = Class.forName(m.getColumnClassName(i + 1));
+            }
+            catch(ClassNotFoundException e)
+            {
+                java.util.logging.Logger.getGlobal().log(Level.SEVERE, 
+                        "SQL class '" + m.getColumnClassName(i) + "' unknown!", e);
+                c = java.lang.String.class;
+            }
+            
+            f.addColumn(m.getColumnName(i + 1), c);
         }
         
         while(r.next())
         {
-            String[] row = new String[l];
+            Object[] row = new Object[l];
             
             for(int i = 0 ; i < l ; ++i)
             {
-                row[i] = r.getString(i + 1);
+                row[i] = r.getObject(i + 1);
             }
             
             f.addRow(row);
@@ -149,7 +197,7 @@ public class Connection
 
         r.close();
         
-        return f.finish();
+        return f.produce();
     }
     
     private static final Map<Integer, Failure> ORACLE_ERRORCODES = new HashMap<>();
@@ -176,7 +224,25 @@ public class Connection
         return ORACLE_ERRORCODES.containsKey(ec) ? 
                 ORACLE_ERRORCODES.get(ec) : Failure.UNKNOWN(ec);
     }
+    
+    public static String FormatElement(Object o, Class<?> t)
+    {
+        assert FORMATS.containsKey(t) : "Precondition violated: FORMATS.containsKey(t)";
+        
+        return FORMATS.get(t).format(o);
+    }
+    
+    private static interface Formatter { String format(Object o); }
+    private static final Map<Class<?>, Formatter> FORMATS = new HashMap<>();
 
     private static final List<String> QUERIES = Arrays.asList(new String[] {"SELECT"});
     private static final List<String> UPDATES = Arrays.asList(new String[] {"UPDATE", "INSERT", "DELETE", "DROP", "CREATE"});
+    
+    static
+    {
+        FORMATS.put(String.class, o -> "'" + o.toString() + "'");
+        FORMATS.put(BigDecimal.class, o -> o.toString());
+        FORMATS.put(java.sql.Timestamp.class, o -> "to_date('" + o.toString().split("\\.")[0] + "', 'YYYY-MM-DD HH24:MI:SS')");
+        FORMATS.put(oracle.sql.TIMESTAMP.class, o -> "to_timestamp('" + o.toString() + "', 'YYYY-MM-DD HH24:MI:SS.FF')");
+    }
 }
