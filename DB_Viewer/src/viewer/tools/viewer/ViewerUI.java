@@ -45,6 +45,10 @@ class ViewerUI
         tabs_ = new TabPane();
         Button addButton = new Button();
         ImageView v = new ImageView(Resources.GetImage(Resources.I_ADD));
+
+        addButton.setMinSize(38, 24);
+        addButton.setPrefSize(38, 24);
+        addButton.setMaxSize(38, 24);
         
         v.setFitWidth(16);
         v.setPreserveRatio(true);
@@ -55,8 +59,8 @@ class ViewerUI
         AnchorPane.setBottomAnchor(tabs_, 0.0);
         AnchorPane.setLeftAnchor(tabs_, 0.0);
         AnchorPane.setRightAnchor(tabs_, 0.0);
-        AnchorPane.setTopAnchor(addButton, 1.0);
-        AnchorPane.setLeftAnchor(addButton, 1.0);
+        AnchorPane.setTopAnchor(addButton, 0.0);
+        AnchorPane.setLeftAnchor(addButton, 0.0);
 
         addButton.setOnAction(e -> addTab());
         
