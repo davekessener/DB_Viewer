@@ -21,7 +21,7 @@ public class PasswordTest
     {
         String raw = "hello world";
         String enc = "e94f9e84e94dc6ce303d714c21bd8660";
-
+        
         assertEquals(enc, Password.Encrypt(raw));
         assertEquals(raw, Password.Decrypt(enc));
     }
