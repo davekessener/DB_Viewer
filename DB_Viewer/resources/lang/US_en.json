@@ -43,12 +43,17 @@
             "info" : "",
             "table" :
             {
-                "match" : "Exact match",
-                "contains" : "Must contain",
-                "containsnot" : "Must not contain",
+                "match" : "RegEx",
+                "type" : "Type",
                 "column" : "Attribute",
                 "active" : "Active"
-            }
+            },
+            "any" : "Any",
+            "all" : "All",
+            "match" : "Match",
+            "mismatch" : "Mismatch",
+            "contains" : "Contains",
+            "containsnot" : "Contains not"
         },
         "connect" :
         {

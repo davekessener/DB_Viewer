@@ -15,8 +15,9 @@ public class Resources
     public static final String S_STYLE_EXT = ".css";
     
     private static final String URI_FILE = "file:";
-    
+
     public static final String I_ADD = D_IMGS_FILES + "add" + S_IMG_EXT;
+    public static final String I_SEARCH = D_IMGS_FILES + "search" + S_IMG_EXT;
     
     public static final String CSS_TABS = URI_FILE + D_STYLE_FILES + "tabs" + S_STYLE_EXT;
     

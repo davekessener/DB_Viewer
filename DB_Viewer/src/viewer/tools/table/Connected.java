@@ -10,10 +10,12 @@ import viewer.materials.Connection;
 import viewer.materials.Entry;
 import viewer.materials.Pair;
 import viewer.materials.Relation;
+import viewer.materials.Table;
 import viewer.service.connection.ConnectionService;
 import viewer.service.connection.Future;
 import viewer.service.connection.VoidTask;
 import viewer.service.connection.Void;
+import viewer.tools.filter.FilterDialog;
 import viewer.tools.ui.Alert;
 import viewer.tools.ui.Alert.AlertType;
 import viewer.tools.ui.Indicator;
@@ -26,11 +28,13 @@ public class Connected
     private OnDisconnect disconnect_;
     private TableManager tables_;
     private String connection_;
+    private FilterDialog filters_;
     
     public Connected(ConnectionService service, Indicator indicator)
     {
         this.service_ = service;
         this.indicator_ = indicator;
+        this.filters_ = new FilterDialog();
         this.tables_ = null;
         
         ui_ = new ConnectedUI();
@@ -63,7 +67,7 @@ public class Connected
         
         for(Entry e : rows)
         {
-            String t = tables_.getTable(e);
+            String t = tables_.getTableName(e);
             List<String> fs = new ArrayList<String>();
             
             for(String k : e.getColumns())
@@ -83,6 +87,12 @@ public class Connected
         });
     }
     
+    private void filters()
+    {
+        Table t = tables_.getTable(ui_.getSelected());
+        filters_.show(t.getColumns(), t.getFilters());
+    }
+    
     private void disconnect()
     {
         assert disconnect_ != null : "Vorbedingung verletzt: disconnect_ != null";
@@ -99,12 +109,22 @@ public class Connected
         service_.request(connection_, (Connection c) -> doLoadTable(c, s)).onDone(f -> evaluateTable(f));
     }
     
+    private void reload()
+    {
+        Table t = tables_.getTable(ui_.getSelected());
+        
+        ui_.load(t.getColumns(), t.getRows(), t.getFilters());
+    }
+    
     private void registerHandlers()
     {
         ui_.registerAdd(e -> add());
         ui_.registerRemove(e -> remove(e));
+        ui_.registerFilters(e -> filters());
         ui_.registerDisconnect(e -> disconnect());
         ui_.registerSelect(s -> select(s));
+        
+        filters_.registerOnClose(() -> reload());
     }
     
     // # ----------------------------------------------------------------------
@@ -167,8 +187,9 @@ public class Connected
             Relation r = f.get().second;
             
             tables_.updateTable(id, r);
+            Table t = tables_.getTable(id);
             
-            ui_.load(tables_.getColumns(id), tables_.getRows(id));
+            ui_.load(t.getColumns(), t.getRows(), t.getFilters());
             
             indicator_.setInfo(null);
             indicator_.setEnabled(true);

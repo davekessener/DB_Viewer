@@ -50,12 +50,17 @@ public class Strings
     public static final String UI_CONNECT_SID = "ui.connect.sid";
     public static final String UI_CONNECT_TITLE = "ui.connect.title";
     public static final String UI_CONNECT_USER = "ui.connect.user";
-    
+
     public static final String UI_FILTERS_INFO = "ui.filters.info";
+    public static final String UI_FILTERS_ANY = "ui.filters.any";
+    public static final String UI_FILTERS_ALL = "ui.filters.all";
+    public static final String UI_FILTERS_MATCH = "ui.filters.match";
+    public static final String UI_FILTERS_MISMATCH = "ui.filters.mismatch";
+    public static final String UI_FILTERS_CONTAINS = "ui.filters.contains";
+    public static final String UI_FILTERS_CONTAINSNOT = "ui.filters.containsnot";
     public static final String UI_FILTERS_TABLE_ACTIVE = "ui.filters.table.active";
     public static final String UI_FILTERS_TABLE_COLUMN = "ui.filters.table.column";
-    public static final String UI_FILTERS_TABLE_CONTAINS = "ui.filters.table.contains";
-    public static final String UI_FILTERS_TABLE_CONTAINSNOT = "ui.filters.table.containsnot";
+    public static final String UI_FILTERS_TABLE_TYPE = "ui.filters.table.type";
     public static final String UI_FILTERS_TABLE_MATCH = "ui.filters.table.match";
     public static final String UI_FILTERS_TITLE = "ui.filters.title";
     

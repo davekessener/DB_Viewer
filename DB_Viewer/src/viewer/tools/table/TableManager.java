@@ -8,19 +8,16 @@ import java.util.Map;
 
 import viewer.materials.Entry;
 import viewer.materials.Relation;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import viewer.materials.Table;
 
 public class TableManager
 {
     private List<String> names_;
-    private Map<String, Relation> relations_;
-    private Map<String, ObservableList<Entry>> tables_;
+    private Map<String, Table> tables_;
     
     public TableManager(List<String> names)
     {
         this.names_ = new ArrayList<>(names);
-        this.relations_ = new HashMap<>();
         this.tables_ = new HashMap<>();
     }
     
@@ -29,11 +26,11 @@ public class TableManager
         return Collections.unmodifiableList(names_);
     }
     
-    public String getTable(Entry e)
+    public String getTableName(Entry e)
     {
-        for(Map.Entry<String, ObservableList<Entry>> v : tables_.entrySet())
+        for(Map.Entry<String, Table> v : tables_.entrySet())
         {
-            if(v.getValue().contains(e)) return v.getKey();
+            if(v.getValue().containsRow(e)) return v.getKey();
         }
         
         throw new Error("Entry now known!");
@@ -43,10 +40,12 @@ public class TableManager
     {
         assert knowsTable(id) : "Precondition violated: knowsTable(id)";
         
-        List<Entry> rows = new ArrayList<>(relation.getRows());
+        if(!tables_.containsKey(id))
+        {
+            tables_.put(id, new Table());
+        }
         
-        relations_.put(id, relation);
-        tables_.put(id, FXCollections.observableList(rows));
+        tables_.get(id).update(relation);
     }
     
     public boolean knowsTable(String id)
@@ -56,27 +55,13 @@ public class TableManager
     
     public boolean hasRelation(String id)
     {
-        return relations_.containsKey(id);
+        return tables_.containsKey(id);
     }
     
-    public List<String> getColumns(String id)
-    {
-        assert hasRelation(id) : "Precondition violated: knowsTable(id)";
-        
-        return relations_.get(id).getColumns();
-    }
-    
-    public ObservableList<Entry> getRows(String id)
-    {
-        assert hasRelation(id) : "Precondition violated: knowsTable(id)";
-        
-        return tables_.get(id);
-    }
-    
-    public Relation getRelation(String id)
+    public Table getTable(String id)
     {
         assert hasRelation(id) : "Precondition violated: hasRelation(id)";
         
-        return relations_.get(id);
+        return tables_.get(id);
     }
 }
