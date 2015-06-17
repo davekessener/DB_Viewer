@@ -25,7 +25,7 @@ public class ConnectionFailureException extends ViewerException
         }
         else
         {
-            return String.format("%s (%d)", Literals.Get(Strings.E_ESTABLISH_FAILURE_UNKNOWN), f.code);
+            return String.format("%s (%d)", Literals.Get(Strings.ERROR_SQL_UNKNOWN), f.code);
         }
     }
     
@@ -35,9 +35,9 @@ public class ConnectionFailureException extends ViewerException
     {
         FAILURES = new HashMap<>();
 
-        FAILURES.put(Failure.NETWORK, Strings.E_ESTABLISH_FAILURE_NETWORK);
-        FAILURES.put(Failure.CREDENTIALS, Strings.E_ESTABLISH_FAILURE_CREDENTIALS);
-        FAILURES.put(Failure.TIMEOUT, Strings.E_ESTABLISH_FAILURE_TIMEOUT);
-        FAILURES.put(Failure.SID, Strings.E_ESTABLISH_FAILURE_SID);
+        FAILURES.put(Failure.NETWORK, Strings.ERROR_SQL_NETWORK);
+        FAILURES.put(Failure.CREDENTIALS, Strings.ERROR_SQL_NETWORK);
+        FAILURES.put(Failure.TIMEOUT, Strings.ERROR_SQL_TIMEOUT);
+        FAILURES.put(Failure.SID, Strings.ERROR_SQL_SID);
     }
 }

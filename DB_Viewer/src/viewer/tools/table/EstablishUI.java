@@ -33,7 +33,7 @@ public class EstablishUI
     {
         BorderPane pane = new BorderPane();
         
-        pane.setCenter(open_ = new Button(Literals.Get(Strings.B_ESTABLISH)));
+        pane.setCenter(open_ = new Button(Literals.Get(Strings.BUTTON_CONNECT)));
         
         pane.setOnKeyPressed(e -> { if(e.getCode() == KeyCode.ENTER) open_.getOnAction().handle(new ActionEvent()); });
         

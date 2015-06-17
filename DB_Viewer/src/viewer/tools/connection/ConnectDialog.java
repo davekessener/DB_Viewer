@@ -56,7 +56,7 @@ public class ConnectDialog
     {
         Stage stage = new Stage();
         
-        stage.setTitle(Literals.Get(Strings.S_ESTABLISH_TITLE));
+        stage.setTitle(Literals.Get(Strings.UI_CONNECT_TITLE));
         stage.getIcons().add(Resources.GetImage(Resources.I_ADD));
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setScene(new Scene((Parent) ui_.getUI()));

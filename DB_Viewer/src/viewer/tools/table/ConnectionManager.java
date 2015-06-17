@@ -78,6 +78,6 @@ public class ConnectionManager
     
     private static String DefaultTitle()
     {
-        return Literals.Get(Strings.S_NEWCONNECTION);
+        return Literals.Get(Strings.UI_NEWCONNECTION);
     }
 }

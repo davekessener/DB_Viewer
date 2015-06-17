@@ -74,16 +74,16 @@ class ConnectUI
         
         configureGrid(grid);
         
-        addLabel(grid, Strings.S_ESTABLISH_NAME, 0, row);
-        addLabel(grid, Strings.S_ESTABLISH_SID, 2, row);
+        addLabel(grid, Strings.UI_CONNECT_NAME, 0, row);
+        addLabel(grid, Strings.UI_CONNECT_SID, 2, row);
 
         grid.add(name_ = new TextField(), 1, row);
         grid.add(sid_ = new TextField(), 3, row);
         
         ++row;
         
-        addLabel(grid, Strings.S_ESTABLISH_SERVER, 0, row);
-        addLabel(grid, Strings.S_ESTABLISH_PORT, 2, row);
+        addLabel(grid, Strings.UI_CONNECT_SERVER, 0, row);
+        addLabel(grid, Strings.UI_CONNECT_PORT, 2, row);
 
         grid.add(server_ = new TextField(), 1, row);
         grid.add(port_ = new NumericField(), 3, row);
@@ -95,7 +95,7 @@ class ConnectUI
         port_.setMinWidth(20);
         port_.setPrefWidth(80);
         
-        name_.setText(Literals.Get(Strings.S_NEWCONNECTION));
+        name_.setText(Literals.Get(Strings.UI_NEWCONNECTION));
         
         if(Literals.DEBUG)
         {
@@ -104,7 +104,7 @@ class ConnectUI
             ++row;
         }
 
-        addLabel(grid, Strings.S_ESTABLISH_USER, 0, row);
+        addLabel(grid, Strings.UI_CONNECT_USER, 0, row);
 
         grid.add(createUserPassword(), 1, row, 3, 1);
         
@@ -137,9 +137,9 @@ class ConnectUI
         pane.setHgap(10);
         pane.setAlignment(Pos.BOTTOM_RIGHT);
 
-        pane.getChildren().add(test_ = new Button(Literals.Get(Strings.B_ESTABLISH_TEST)));
-        pane.getChildren().add(connect_ = new Button(Literals.Get(Strings.B_ESTABLISH_CONNECT)));
-        pane.getChildren().add(cancel_ = new Button(Literals.Get(Strings.B_ESTABLISH_CANCEL)));
+        pane.getChildren().add(test_ = new Button(Literals.Get(Strings.BUTTON_TEST)));
+        pane.getChildren().add(connect_ = new Button(Literals.Get(Strings.BUTTON_CONNECT)));
+        pane.getChildren().add(cancel_ = new Button(Literals.Get(Strings.BUTTON_CANCEL)));
 
         test_.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         connect_.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -169,7 +169,7 @@ class ConnectUI
         pane.getColumnConstraints().add(cc);
         
         pane.add(user_ = new TextField(), 0, 0);
-        addLabel(pane, Strings.S_ESTABLISH_PASSWORD, 1, 0);
+        addLabel(pane, Strings.UI_CONNECT_PASSWORD, 1, 0);
         pane.add(password_ = new PasswordField(), 2, 0);
         
         return pane;

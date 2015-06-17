@@ -56,9 +56,9 @@ public class URL
         assert server != null : "Vorbedingung verletzt: server != null";
         
         if(server.isEmpty() || sid.isEmpty())
-            throw new URLException(Strings.E_URL_EMPTY);
+            throw new URLException(Strings.ERROR_URL_EMPTY);
         
-        if(port <= 0) throw new URLException(Strings.E_URL_PORT);
+        if(port <= 0) throw new URLException(Strings.ERROR_URL_PORT);
         
         server = urlify(server.toLowerCase());
         
@@ -71,7 +71,7 @@ public class URL
         if(m.matches()) s = m.group(1);
         
         if(s.contains(":") || s.contains("/") || s.startsWith(".") || s.endsWith("."))
-            throw new URLException(Strings.E_URL_MALFORMED);
+            throw new URLException(Strings.ERROR_URL_MALFORMED);
 
         return s;
     }

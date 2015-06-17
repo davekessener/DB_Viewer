@@ -1,60 +1,98 @@
 {
-    "S:title" : "DBP/2 - Database Viewer",
-    "S:newconnection" : "Unnamed Connection",
-    "B:establish" : "New connection",
+    "button" :
+    {
+        "ok" : "OK",
+        "cancel" : "Cancel",
+        "add" : "Add",
+        "remove" : "Remove",
+        "edit" : "Edit",
+        "close" : "Close",
+        "test" : "Test",
+        "connect" : "Connect",
+        "disconnect" : "Disconnect"
+    },
+    "color" :
+    {
+        "default" : "#000000",
+        "success" : "#007700",
+        "failure" : "#ff0000",
+        "info" : "#0000ff"
+    },
+    "ui" :
+    {
+        "title" : "DBP/2 - Database Viewer",
+        "newconnection" : "New Connection",
+        "defaultname" : "Connection",
+        "tables" : "User tables:",
+        "filters" : "Filters",
+        "table" :
+        {
+            "selectall" : "Select all",
+            "selectnone" : "Select none",
+            "selectinverse" : "Inverse selection"
+        },
+        "add" :
+        {
+            "title" : "New entry",
+            "column" : "Attribute",
+            "value" : "Value"
+        },
+        "filters" :
+        {
+            "title" : "Filters",
+            "info" : "",
+            "table" :
+            {
+                "match" : "Exact match",
+                "contains" : "Must contain",
+                "containsnot" : "Must not contain",
+                "column" : "Attribute",
+                "active" : "Active"
+            }
+        },
+        "connect" :
+        {
+            "title" : "Establish connection",
+            "name" : "Connection name:",
+            "server" : "Server:",
+            "port" : "Port:",
+            "sid" : "SID:",
+            "user" : "Username:",
+            "password" : "Password:"
+        }
+    },
     "info" :
     {
-    	"connection" :
-    	{
-    	    "S:initialization" : "Testing ...",
-    	    "S:connect" : "Connecting ...",
-            "S:established" : "Connection established.",
-            "S:disconnected" : "Connection closed.",
-            "S:loading" : "Loading ..."
-    	},
-    	"S:success" : "Success!",
-    	"S:failure" : "Failure."
+        "connection" :
+        {
+            "init" : "Testing ...",
+            "connecting" : "Connecting ...",
+            "established" : "Connection established.",
+            "disconnected" : "Connection closed.",
+            "loading" : "Communicating with database ..."
+        },
+        "success" : "Success!",
+        "failure" : "Failure."
     },
-    "url" :
+    "error" :
     {
-        "E:malformed" : "The URL is malformed.",
-        "E:port" : "Invalid port!",
-        "E:empty" : "Fields cannot be left empty!"
-    },
-    "connectionservice" :
-    {
-    	"E:duplicate" : "There is already a connection with that name!"
-    },
-    "establish" :
-    {
-        "S:title" : "Establish connection",
-        "B:connect" : "Connect",
-        "B:cancel" : "Cancel",
-        "B:test" : "Test",
-    	"S:name" : "Name:",
-    	"S:server" : "Server:",
-    	"S:port" : "Port:",
-    	"S:sid" : "SID:",
-    	"S:user" : "User:",
-    	"S:password" : "Password:",
-    	"failure" :
-    	{
-    	    "E:network" : "Network failure.",
-    	    "E:credentials" : "Invalid credentials.",
-    	    "E:timeout" : "Connection timed out.",
-    	    "E:sid" : "Invalid SID",
-    	    "E:unknown" : "An unknown error occured."
-    	}
-    },
-    "connection" :
-    {
-        "S:default" : "Connection"
-    },
-    "E:errortitle" : "Connection Error",
-    "E:connectivity" : "Couldn't connect. Try again later.",
-    "C:default" : "#000000",
-    "C:success" : "#008800",
-    "C:failure" : "#ff0000",
-    "C:info"    : "#0000ff"
+        "duplicate" : "There already is a connection with that name!",
+        "connectivity" : "Wasn't able to connect.",
+        "title" : "Error",
+        "sql" :
+        {
+            "credentials" : "Invalid credentials.",
+            "sid" : "Invalid SID.",
+            "network" : "Network failure.",
+            "timeout" : "Connection timed out.",
+            "unknown" : "An unknown error occured."
+        },
+        "url" :
+        {
+            "empty" : "Fields cannot be left empty!",
+            "malformed" : "The URL is malformed!",
+            "port" : "Invalid port!"
+        }
+    }
 }
 

@@ -59,7 +59,7 @@ public class Connect
     {
         Form input = ui_.getInput();
         
-        indicatorActivity(Strings.S_INFO_CONNECTION_INITIALIZATION, Strings.C_DEFAULT);
+        indicatorActivity(Strings.INFO_CONNECTION_INIT, Strings.COLOR_DEFAULT);
         
         service_.request(() -> doConnectionTest(input)).onDone(f -> evaluateConnectionTest(f));
     }
@@ -68,7 +68,7 @@ public class Connect
     {
         Form input = ui_.getInput();
         
-        indicatorActivity(Strings.S_INFO_CONNECTION_CONNECT, Strings.C_DEFAULT);
+        indicatorActivity(Strings.INFO_CONNECTION_CONNECTING, Strings.COLOR_DEFAULT);
         
         service_.request(() -> doConnect(input)).onDone(f -> evaluateConnect(f));
     }
@@ -93,7 +93,7 @@ public class Connect
         }
         catch(ConnectionFailureException | URLException e)
         {
-            indicator_.setColor(Strings.C_FAILURE);
+            indicator_.setColor(Strings.COLOR_FAILURE);
             indicator_.setInfo(e.getMessage());
         }
         catch(Exception e)
@@ -111,13 +111,13 @@ public class Connect
         {
             if(f.get())
             {
-                indicator_.setColor(Strings.C_SUCCESS);
-                indicator_.setInfo(Strings.S_INFO_SUCCESS);
+                indicator_.setColor(Strings.COLOR_SUCCESS);
+                indicator_.setInfo(Strings.INFO_SUCCESS);
             }
             else
             {
-                indicator_.setColor(Strings.C_FAILURE);
-                indicator_.setInfo(Strings.S_INFO_FAILURE);
+                indicator_.setColor(Strings.COLOR_FAILURE);
+                indicator_.setInfo(Strings.INFO_FAILURE);
             }
         });
     }
@@ -133,8 +133,8 @@ public class Connect
         {
             String id = f.get();
             
-            indicator_.setColor(Strings.C_SUCCESS);
-            indicator_.setInfo(Strings.S_INFO_CONNECTION_ESTABLISHED);
+            indicator_.setColor(Strings.COLOR_SUCCESS);
+            indicator_.setInfo(Strings.INFO_CONNECTION_ESTABLISHED);
             indicator_.setEnabled(true);
             
             onConnect_.act(id);
@@ -147,8 +147,8 @@ public class Connect
 
         String name = input.NAME;
         
-        if(name.isEmpty() || name.equals(Literals.Get(Strings.S_NEWCONNECTION))) 
-            name = Literals.Get(Strings.S_CONNECTION_DEFAULT);
+        if(name.isEmpty() || name.equals(Literals.Get(Strings.UI_NEWCONNECTION))) 
+            name = Literals.Get(Strings.UI_DEFAULTNAME);
         
         return service_.doEstablishConnection(name, GetURL(input), input.USER, input.PASSWORD);
     }

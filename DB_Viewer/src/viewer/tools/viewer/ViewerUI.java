@@ -71,14 +71,14 @@ class ViewerUI
         Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add(Resources.CSS_TABS);
         
-        stage_.setTitle(Literals.Get(Strings.S_TITLE));
+        stage_.setTitle(Literals.Get(Strings.UI_TITLE));
         stage_.setScene(scene);
         stage_.centerOnScreen();
     }
     
     private void addTab()
     {
-        Tab tab = new Tab(Literals.Get(Strings.S_NEWCONNECTION));
+        Tab tab = new Tab(Literals.Get(Strings.UI_NEWCONNECTION));
         
         if(newpagehandler_ != null) newpagehandler_.addContent(tab);
         

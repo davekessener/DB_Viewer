@@ -92,8 +92,8 @@ public class Connected
     
     private void select(String s)
     {
-        indicator_.setColor(Strings.C_DEFAULT);
-        indicator_.setInfo(Strings.S_INFO_CONNECTION_LOADING);
+        indicator_.setColor(Strings.COLOR_DEFAULT);
+        indicator_.setInfo(Strings.INFO_CONNECTION_LOADING);
         indicator_.setEnabled(false);
         
         service_.request(connection_, (Connection c) -> doLoadTable(c, s)).onDone(f -> evaluateTable(f));
@@ -111,8 +111,8 @@ public class Connected
     
     public void init(String id)
     {
-        indicator_.setColor(Strings.C_DEFAULT);
-        indicator_.setInfo(Strings.S_INFO_CONNECTION_LOADING);
+        indicator_.setColor(Strings.COLOR_DEFAULT);
+        indicator_.setInfo(Strings.INFO_CONNECTION_LOADING);
         indicator_.setEnabled(false);
 
         tables_ = null;
