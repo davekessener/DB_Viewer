@@ -16,6 +16,7 @@ import viewer.service.connection.Future;
 import viewer.service.connection.VoidTask;
 import viewer.service.connection.Void;
 import viewer.tools.filter.FilterDialog;
+import viewer.tools.table.edit.EditDialog;
 import viewer.tools.ui.Alert;
 import viewer.tools.ui.Alert.AlertType;
 import viewer.tools.ui.Indicator;
@@ -29,12 +30,14 @@ public class Connected
     private TableManager tables_;
     private String connection_;
     private FilterDialog filters_;
+    private EditDialog edit_;
     
     public Connected(ConnectionService service, Indicator indicator)
     {
         this.service_ = service;
         this.indicator_ = indicator;
         this.filters_ = new FilterDialog();
+        this.edit_ = new EditDialog();
         this.tables_ = null;
         
         ui_ = new ConnectedUI();
@@ -58,6 +61,12 @@ public class Connected
 
     private void add()
     {
+        edit_.show(tables_.getTable(ui_.getSelected()).getRelation(), null);
+    }
+    
+    private void edit(Entry e)
+    {
+        edit_.show(tables_.getTable(ui_.getSelected()).getRelation(), e);
     }
     
     private void remove(List<Entry> rows)
@@ -82,7 +91,7 @@ public class Connected
         {
             if(r == Alert.Response.YES)
             {
-                service_.request(connection_, (Connection c) -> c.executeAll(queries)).onDone(f -> evaluateDelete(f, table));
+                service_.request(connection_, (Connection c) -> c.executeAll(queries)).onDone(f -> evaluateAndReload(f, table));
             }
         });
     }
@@ -116,15 +125,66 @@ public class Connected
         ui_.load(t.getColumns(), t.getRows(), t.getFilters());
     }
     
+    private String insertInto(String table, Entry e)
+    {
+        assert e != null : "Vorbedingung verletzt: e != null";
+        
+        StringBuilder sb = new StringBuilder();
+        List<String> vs = new ArrayList<>();
+        
+        for(String c : e.getColumns())
+        {
+            vs.add(Connection.FormatElement(e.getItem(c), e.getType(c)));
+        }
+        
+        sb.append("INSERT INTO ").append(table).append(" values (");
+        sb.append(String.join(", ", vs)).append(")");
+        
+        return sb.toString();
+    }
+    
+    private String updateEntry(String table, Entry e1, Entry e2)
+    {
+        assert e1 != null : "Vorbedingung verletzt: e1 != null";
+        assert e2 != null : "Vorbedingung verletzt: e2 != null";
+        assert e1.getColumns().equals(e2.getColumns()) : "Precondition violated: e1.getColumns().equals(e2.getColumns())";
+        
+        StringBuilder sb = new StringBuilder();
+        List<String> rs = new ArrayList<>();
+        List<String> ts = new ArrayList<>();
+        
+        for(String c : e1.getColumns())
+        {
+            rs.add(c + " = " + Connection.FormatElement(e2.getValue(c), e2.getType(c)));
+            ts.add(c + " = " + Connection.FormatElement(e1.getValue(c), e1.getType(c)));
+        }
+        
+        sb.append("UPDATE ").append(table).append(" SET ");
+        sb.append(String.join(" AND ", rs)).append(" WHERE ");
+        sb.append(String.join(" AND ", ts));
+        
+        return sb.toString();
+    }
+    
+    private void update(Entry e1, Entry e2)
+    {
+        final String table = ui_.getSelected();
+        final String query = e1 == null ? insertInto(table, e2) : updateEntry(table, e1, e2);
+
+        service_.request(connection_, (Connection c) -> c.execute(query)).onDone(f -> evaluateAndReload(f, table));
+    }
+    
     private void registerHandlers()
     {
         ui_.registerAdd(e -> add());
+        ui_.registerEdit(e -> edit(e));
         ui_.registerRemove(e -> remove(e));
         ui_.registerFilters(e -> filters());
         ui_.registerDisconnect(e -> disconnect());
         ui_.registerSelect(s -> select(s));
         
         filters_.registerOnClose(() -> reload());
+        edit_.registerOnClose((e1, e2) -> update(e1, e2));
     }
     
     // # ----------------------------------------------------------------------
@@ -168,7 +228,7 @@ public class Connected
 
     // # ----------------------------------------------------------------------
     
-    private void evaluateDelete(Future<Void> f, String table)
+    private void evaluateAndReload(Future<Void> f, String table)
     {
         evaluate(() ->
         {

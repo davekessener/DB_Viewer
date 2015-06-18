@@ -3,19 +3,21 @@ package viewer.materials;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class Relation implements Iterable<Entry>
 {
     private List<String> cols_;
-    private List<Class<?>> types_;
+    private Map<String, Class<?>> types_;
     private List<Entry> rows_;
     
-    private Relation(List<String> names, List<Class<?>> types, List<Object[]> items)
+    private Relation(List<String> names, Map<String, Class<?>> types, List<Object[]> items)
     {
         this.cols_ = new ArrayList<>(names);
-        this.types_ = new ArrayList<>(types);
+        this.types_ = new HashMap<>(types);
         this.rows_ = new ArrayList<>();
         
         for(Object[] o : items)
@@ -32,9 +34,11 @@ public class Relation implements Iterable<Entry>
         return Collections.unmodifiableList(cols_);
     }
     
-    public List<Class<?>> getTypes()
+    public Class<?> getType(String id)
     {
-        return Collections.unmodifiableList(types_);
+        assert types_.containsKey(id) : "Precondition violated: types_.containsKey(id)";
+        
+        return types_.get(id);
     }
     
     public List<Entry> getRows()
@@ -85,7 +89,7 @@ public class Relation implements Iterable<Entry>
         private class Stage1 implements Stage
         {
             protected List<String> names_ = new ArrayList<>();
-            protected List<Class<?>> types_ = new ArrayList<>();
+            protected Map<String, Class<?>> types_ = new HashMap<>();
             
             @Override
             public void addColumn(String name, Class<?> type)
@@ -93,7 +97,7 @@ public class Relation implements Iterable<Entry>
                 assert !names_.contains(name) : "Precondition violated: !names_.contains(name)";
                 
                 names_.add(name);
-                types_.add(type);
+                types_.put(name, type);
             }
 
             @Override
@@ -113,7 +117,7 @@ public class Relation implements Iterable<Entry>
         private class Stage2 implements Stage
         {
             protected List<String> names_;
-            protected List<Class<?>> types_;
+            protected Map<String, Class<?>> types_;
             protected List<Object[]> items_;
             
             public Stage2(Stage1 s)
@@ -139,7 +143,7 @@ public class Relation implements Iterable<Entry>
                 {
 //                    System.out.println(String.format("'%s instanceof %s' should hold", 
 //                    types_.get(i).toGenericString(), items[i].getClass().toGenericString()));
-                    assert types_.get(i).isAssignableFrom(items[i].getClass()) : 
+                    assert types_.get(names_.get(i)).isAssignableFrom(items[i].getClass()) : 
                         "Precondition violated: item instanceof type";
                 }
                 

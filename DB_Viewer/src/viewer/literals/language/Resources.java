@@ -16,7 +16,9 @@ public class Resources
     
     private static final String URI_FILE = "file:";
 
+    public static final String I_DATABASE = D_IMGS_FILES + "database" + S_IMG_EXT;
     public static final String I_ADD = D_IMGS_FILES + "add" + S_IMG_EXT;
+    public static final String I_EDIT = D_IMGS_FILES + "edit" + S_IMG_EXT;
     public static final String I_SEARCH = D_IMGS_FILES + "search" + S_IMG_EXT;
     
     public static final String CSS_TABS = URI_FILE + D_STYLE_FILES + "tabs" + S_STYLE_EXT;

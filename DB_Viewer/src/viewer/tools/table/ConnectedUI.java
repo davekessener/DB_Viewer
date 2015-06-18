@@ -43,7 +43,7 @@ public class ConnectedUI
 {
     private Node pane_;
     private ComboBox<String> select_;
-    private Button add_, remove_;
+    private Button add_, edit_, remove_;
     private Button disconnect_;
     private Hyperlink filters_;
     private TableView<Entry> table_;
@@ -67,6 +67,16 @@ public class ConnectedUI
     public void registerAdd(EventHandler<ActionEvent> h)
     {
         add_.setOnAction(h);
+    }
+    
+    public void registerEdit(EditHandler h)
+    {
+        edit_.setOnAction(e ->
+        {
+            Entry entry = table_.getSelectionModel().getSelectedItem();
+            
+            if(entry != null) h.act(entry);
+        });
     }
 
     public void registerRemove(RemoveHandler h)
@@ -174,6 +184,7 @@ public class ConnectedUI
         table_.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         
         remove_.disableProperty().bind(table_.getSelectionModel().selectedItemProperty().isNull());
+        edit_.disableProperty().bind(table_.getSelectionModel().selectedItemProperty().isNull());
     }
     
     private Node createUI()
@@ -283,18 +294,21 @@ public class ConnectedUI
         pane.setHgap(10);
 
         add_ = new Button(Literals.Get(Strings.BUTTON_ADD));
+        edit_ = new Button(Literals.Get(Strings.BUTTON_EDIT));
         remove_ = new Button(Literals.Get(Strings.BUTTON_REMOVE));
 
         add_.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        edit_.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         remove_.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         
-        pane.getChildren().addAll(add_, remove_);
+        pane.getChildren().addAll(add_, edit_, remove_);
         
         active_.add(pane);
 
         return pane;
     }
 
+    public static interface EditHandler { void act(Entry e); }
     public static interface RemoveHandler { void act(List<Entry> e); }
     public static interface SelectHandler { void act(String s); }
 }

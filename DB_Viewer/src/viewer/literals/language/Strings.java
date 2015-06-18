@@ -39,9 +39,10 @@ public class Strings
     public static final String INFO_FAILURE = "info.failure";
     public static final String INFO_SUCCESS = "info.success";
     
-    public static final String UI_ADD_COLUMN = "ui.add.column";
-    public static final String UI_ADD_TITLE = "ui.add.title";
-    public static final String UI_ADD_VALUE = "ui.add.value";
+    public static final String UI_EDIT_COLUMN = "ui.edit.column";
+    public static final String UI_EDIT_VALUE = "ui.edit.value";
+    public static final String UI_EDIT_TITLE_ADD = "ui.edit.title.add";
+    public static final String UI_EDIT_TITLE_EDIT = "ui.edit.title.edit";
     
     public static final String UI_CONNECT_NAME = "ui.connect.name";
     public static final String UI_CONNECT_PASSWORD = "ui.connect.password";

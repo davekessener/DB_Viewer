@@ -31,9 +31,13 @@
             "selectnone" : "Select none",
             "selectinverse" : "Inverse selection"
         },
-        "add" :
+        "edit" :
         {
-            "title" : "New entry",
+            "title" :
+            {
+                "add" : "New entry",
+                "edit" : "Edit entry"
+            },
             "column" : "Attribute",
             "value" : "Value"
         },

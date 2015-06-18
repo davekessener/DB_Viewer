@@ -72,6 +72,7 @@ class ViewerUI
         scene.getStylesheets().add(Resources.CSS_TABS);
         
         stage_.setTitle(Literals.Get(Strings.UI_TITLE));
+        stage_.getIcons().add(Resources.GetImage(Resources.I_DATABASE));
         stage_.setScene(scene);
         stage_.centerOnScreen();
     }

@@ -15,22 +15,18 @@ public class Entry
     private Map<String, Object> items_;
     private Map<String, Class<?>> types_;
     
-    public Entry(List<String> names, List<Class<?>> types, List<Object> items)
+    public Entry(List<String> names, Map<String, Class<?>> types, List<Object> items)
     {
         assert names.size() == items.size() : "Precondition violated: cols.size() == items.size()";
         assert types.size() == items.size() : "Precondition violated: cols.size() == items.size()";
         
-        cols_ = new ArrayList<>();
+        cols_ = new ArrayList<>(names);
         items_ = new HashMap<>();
-        types_ = new HashMap<>();
+        types_ = new HashMap<>(types);
         
         for(int i = 0 ; i < names.size() ; ++i)
         {
-            String n = names.get(i);
-            
-            cols_.add(n);
-            items_.put(n, items.get(i));
-            types_.put(n, types.get(i));
+            items_.put(names.get(i), items.get(i));
         }
     }
     
