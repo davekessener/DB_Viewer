@@ -6,16 +6,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import viewer.materials.sql.SQLObject;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 public class Entry
 {
     private List<String> cols_;
-    private Map<String, Object> items_;
-    private Map<String, Class<?>> types_;
+    private Map<String, SQLObject> items_;
+    private Map<String, Class<? extends SQLObject>> types_;
     
-    public Entry(List<String> names, Map<String, Class<?>> types, List<Object> items)
+    public Entry(List<String> names, Map<String, Class<? extends SQLObject>> types, List<SQLObject> items)
     {
         assert names.size() == items.size() : "Precondition violated: cols.size() == items.size()";
         assert types.size() == items.size() : "Precondition violated: cols.size() == items.size()";
@@ -42,7 +43,7 @@ public class Entry
         return types_.get(id);
     }
     
-    public Object getItem(String id)
+    public SQLObject getItem(String id)
     {
         assert items_.containsKey(id) : "Precondition violated: items_.containsKey(id)";
         

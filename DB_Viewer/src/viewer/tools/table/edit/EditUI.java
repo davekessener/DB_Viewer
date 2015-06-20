@@ -5,11 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import viewer.exception.SQLInstantiationException;
 import viewer.literals.language.Literals;
 import viewer.literals.language.Strings;
 import viewer.materials.Entry;
 import viewer.materials.Relation;
-import javafx.beans.property.SimpleObjectProperty;
+import viewer.materials.sql.SQLObject;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -20,6 +21,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.TilePane;
 
@@ -55,21 +57,21 @@ public class EditUI
         
         for(String c : r.getColumns())
         {
-            table_.getItems().add(new Attribute(c, e == null ? null : e.getValue(c), r.getType(c)));
+            table_.getItems().add(new Attribute(c, e == null ? SQLObject.Instantiate(r.getType(c)) : e.getItem(c)));
         }
     }
     
-    public Entry getEntry()
+    public Entry getEntry() throws SQLInstantiationException
     {
         List<String> cs = new ArrayList<>();
-        List<Object> vs = new ArrayList<>();
-        Map<String, Class<?>> ts = new HashMap<>();
+        List<SQLObject> vs = new ArrayList<>();
+        Map<String, Class<? extends SQLObject>> ts = new HashMap<>();
         
         for(Attribute a : table_.getItems())
         {
             String n = a.getName();
             cs.add(n);
-            vs.add(a.getValue());
+            vs.add(SQLObject.ValueOf(a.getType(), a.getValue()));
             ts.put(n, a.getType());
         }
         
@@ -107,12 +109,12 @@ public class EditUI
         table_ = new TableView<>();
 
         TableColumn<Attribute, String> nameCol = new TableColumn<>(Literals.Get(Strings.UI_EDIT_COLUMN));
-        TableColumn<Attribute, Attribute> valueCol = new TableColumn<>(Literals.Get(Strings.UI_EDIT_VALUE));
+        TableColumn<Attribute, String> valueCol = new TableColumn<>(Literals.Get(Strings.UI_EDIT_VALUE));
         
         nameCol.setCellValueFactory(p -> p.getValue().nameProperty());
-        valueCol.setCellValueFactory(p -> new SimpleObjectProperty<>(p.getValue()));
-        
-        
+        valueCol.setCellValueFactory(p -> p.getValue().valueProperty());
+
+        valueCol.setCellFactory(TextFieldTableCell.forTableColumn());
         
         nameCol.setSortable(false);
         valueCol.setSortable(false);

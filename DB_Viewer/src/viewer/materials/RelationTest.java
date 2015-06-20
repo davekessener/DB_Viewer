@@ -4,27 +4,31 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
+import viewer.exception.SQLInstantiationException;
+import viewer.materials.sql.Varchar;
+
 public class RelationTest
 {
     @Test
-    public void test()
+    public void test() throws SQLInstantiationException
     {
         Relation.Factory f = Relation.GetFactory();
         String[] cols = new String[] {"ID", "Name"};
-        String[][] rows = new String[][] {{"10", "Tetsu"}, {"5", "Aho"}};
+        Varchar[][] rows = new Varchar[][] {{Varchar.ValueOf("10"), Varchar.ValueOf("Tetsu")}, 
+                                                 {Varchar.ValueOf("5"), Varchar.ValueOf("Aho")}};
         
 //        assertFalse(f.isFilling());
 //        assertFalse(f.isDone());
         
         for(String s : cols)
         {
-            f.addColumn(s, String.class);
+            f.addColumn(s, Varchar.class);
         }
         
 //        assertFalse(f.isFilling());
 //        assertFalse(f.isDone());
         
-        for(String[] ss : rows)
+        for(Varchar[] ss : rows)
         {
             f.addRow(ss);
         }

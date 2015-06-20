@@ -16,8 +16,9 @@ public class Strings
     public static final String COLOR_FAILURE = "color.failure";
     public static final String COLOR_INFO = "color.info";
     public static final String COLOR_SUCCESS = "color.success";
-    
+
     public static final String ERROR_CONNECTIVITY = "error.connectivity";
+    public static final String ERROR_INSTANTIATION = "error.instantiation";
     public static final String ERROR_DUPLICATE = "error.duplicate";
     public static final String ERROR_TITLE = "error.title";
     

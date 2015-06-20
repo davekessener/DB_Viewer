@@ -1,10 +1,13 @@
 package viewer.tools.table.edit;
 
+import viewer.exception.SQLInstantiationException;
 import viewer.literals.language.Literals;
 import viewer.literals.language.Resources;
 import viewer.literals.language.Strings;
 import viewer.materials.Entry;
 import viewer.materials.Relation;
+import viewer.tools.ui.Alert;
+import viewer.tools.ui.Alert.AlertType;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
@@ -49,8 +52,18 @@ public class EditDialog
     {
         assert onclose_ != null : "Precondition violated: onclose_ != null";
         
-        close();
-        onclose_.update(old_, ui_.getEntry());
+        try
+        {
+            Entry e = ui_.getEntry();
+            
+            close();
+            
+            onclose_.update(old_, e);
+        }
+        catch(SQLInstantiationException e)
+        {
+            Alert.DisplayAlert(AlertType.ERROR, Strings.ERROR_TITLE, null, e.getLocalizedMessage());
+        }
     }
     
     private void registerHandlers()

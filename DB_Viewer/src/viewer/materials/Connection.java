@@ -1,7 +1,6 @@
 package viewer.materials;
 
 import java.math.BigDecimal;
-
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -15,6 +14,11 @@ import java.util.logging.Level;
 
 import viewer.exception.ConnectionFailureException;
 import viewer.literals.URL;
+import viewer.materials.sql.Date;
+import viewer.materials.sql.SQLObject;
+import viewer.materials.sql.Timestamp;
+import viewer.materials.sql.Varchar;
+import viewer.materials.sql.Number;
 import viewer.service.Logger;
 
 public class Connection
@@ -177,19 +181,19 @@ public class Connection
             {
                 java.util.logging.Logger.getGlobal().log(Level.SEVERE, 
                         "SQL class '" + m.getColumnClassName(i) + "' unknown!", e);
-                c = java.lang.String.class;
+                throw new Error("Unknown class " + m.getColumnClassName(i + 1));
             }
             
-            f.addColumn(m.getColumnName(i + 1), c);
+            f.addColumn(m.getColumnName(i + 1), WRAPPERS.get(c));
         }
         
         while(r.next())
         {
-            Object[] row = new Object[l];
+            SQLObject[] row = new SQLObject[l];
             
             for(int i = 0 ; i < l ; ++i)
             {
-                row[i] = r.getObject(i + 1);
+                row[i] = SQLObject.Generate(r.getObject(i + 1));
             }
             
             f.addRow(row);
@@ -201,6 +205,7 @@ public class Connection
     }
     
     private static final Map<Integer, Failure> ORACLE_ERRORCODES = new HashMap<>();
+    private static final Map<Class<?>, Class<? extends SQLObject>> WRAPPERS = new HashMap<>();
     
     public static class Failure
     {
@@ -225,24 +230,14 @@ public class Connection
                 ORACLE_ERRORCODES.get(ec) : Failure.UNKNOWN(ec);
     }
     
-    public static String FormatElement(Object o, Class<?> t)
-    {
-        assert FORMATS.containsKey(t) : "Precondition violated: FORMATS.containsKey(t)";
-        
-        return FORMATS.get(t).format(o);
-    }
-    
-    private static interface Formatter { String format(Object o); }
-    private static final Map<Class<?>, Formatter> FORMATS = new HashMap<>();
-
     private static final List<String> QUERIES = Arrays.asList(new String[] {"SELECT"});
     private static final List<String> UPDATES = Arrays.asList(new String[] {"UPDATE", "INSERT", "DELETE", "DROP", "CREATE"});
     
     static
     {
-        FORMATS.put(String.class, o -> "'" + o.toString() + "'");
-        FORMATS.put(BigDecimal.class, o -> o.toString());
-        FORMATS.put(java.sql.Timestamp.class, o -> "to_date('" + o.toString().split("\\.")[0] + "', 'YYYY-MM-DD HH24:MI:SS')");
-        FORMATS.put(oracle.sql.TIMESTAMP.class, o -> "to_timestamp('" + o.toString() + "', 'YYYY-MM-DD HH24:MI:SS.FF')");
+        WRAPPERS.put(BigDecimal.class, Number.class);
+        WRAPPERS.put(String.class, Varchar.class);
+        WRAPPERS.put(java.sql.Timestamp.class, Date.class);
+        WRAPPERS.put(oracle.sql.TIMESTAMP.class, Timestamp.class);
     }
 }

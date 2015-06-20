@@ -85,6 +85,7 @@
     },
     "error" :
     {
+        "instantiation" : "'%s' is not a valid %s!",
         "duplicate" : "There already is a connection with that name!",
         "connectivity" : "Wasn't able to connect.",
         "title" : "Error",

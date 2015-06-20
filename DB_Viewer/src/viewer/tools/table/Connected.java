@@ -81,7 +81,7 @@ public class Connected
             
             for(String k : e.getColumns())
             {
-                fs.add(k + " = " + Connection.FormatElement(e.getItem(k), e.getType(k)));
+                fs.add(k + " = " + e.getItem(k).toQueryString());
             }
             
             queries.add("DELETE FROM " + t + " WHERE " + String.join(" AND ", fs));
@@ -134,7 +134,7 @@ public class Connected
         
         for(String c : e.getColumns())
         {
-            vs.add(Connection.FormatElement(e.getItem(c), e.getType(c)));
+            vs.add(e.getItem(c).toQueryString());
         }
         
         sb.append("INSERT INTO ").append(table).append(" values (");
@@ -155,12 +155,12 @@ public class Connected
         
         for(String c : e1.getColumns())
         {
-            rs.add(c + " = " + Connection.FormatElement(e2.getValue(c), e2.getType(c)));
-            ts.add(c + " = " + Connection.FormatElement(e1.getValue(c), e1.getType(c)));
+            rs.add(c + " = " + e2.getItem(c).toQueryString());
+            ts.add(c + " = " + e1.getItem(c).toQueryString());
         }
         
         sb.append("UPDATE ").append(table).append(" SET ");
-        sb.append(String.join(" AND ", rs)).append(" WHERE ");
+        sb.append(String.join(", ", rs)).append(" WHERE ");
         sb.append(String.join(" AND ", ts));
         
         return sb.toString();
