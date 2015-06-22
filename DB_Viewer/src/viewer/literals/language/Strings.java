@@ -74,5 +74,13 @@ public class Strings
     public static final String UI_TABLES = "ui.tables";
     public static final String UI_TITLE = "ui.title";
     
+    public static final String SQL_SOLUTION = "SELECT " +
+            "Ehemalige.ID AS ID, Ehemalige.Geburtsname AS Vorname, Ehemalige.Nachname AS Nachname, " +
+            "Ehemalige.EMail AS EMAIL, Lehreinheit.Name AS Studiengang, Lehrinstitution.Name AS Hochschule FROM " +
+            "(((Lehrinstitution JOIN Lehreinheit ON Lehrinstitution.ID = Lehreinheit.InstID) JOIN " +
+            "Lehrveranstaltung ON Lehrveranstaltung.EinheitID = Lehreinheit.ID) JOIN " +
+            "nahm_teil ON Lehrveranstaltung.ID = nahm_teil.KursID) JOIN " +
+            "Ehemalige ON nahm_teil.StudentID = Ehemalige.ID";
+    
     private Strings() { }
 }

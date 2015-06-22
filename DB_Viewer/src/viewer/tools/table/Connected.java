@@ -18,7 +18,6 @@ import viewer.service.connection.Void;
 import viewer.tools.filter.FilterDialog;
 import viewer.tools.table.edit.EditDialog;
 import viewer.tools.ui.Alert;
-import viewer.tools.ui.Alert.AlertType;
 import viewer.tools.ui.Indicator;
 
 public class Connected
@@ -37,7 +36,7 @@ public class Connected
         this.service_ = service;
         this.indicator_ = indicator;
         this.filters_ = new FilterDialog();
-        this.edit_ = new EditDialog();
+        this.edit_ = new EditDialog(service);
         this.tables_ = null;
         
         ui_ = new ConnectedUI();
@@ -59,14 +58,10 @@ public class Connected
     
     // # ----------------------------------------------------------------------
 
-    private void add()
-    {
-        edit_.show(tables_.getTable(ui_.getSelected()).getRelation(), null);
-    }
-    
+    private void add() { edit(null); }
     private void edit(Entry e)
     {
-        edit_.show(tables_.getTable(ui_.getSelected()).getRelation(), e);
+        edit_.show(connection_, ui_.getSelected(), tables_.getTable(ui_.getSelected()).getRelation(), e);
     }
     
     private void remove(List<Entry> rows)
@@ -125,55 +120,6 @@ public class Connected
         ui_.load(t.getColumns(), t.getRows(), t.getFilters());
     }
     
-    private String insertInto(String table, Entry e)
-    {
-        assert e != null : "Vorbedingung verletzt: e != null";
-        
-        StringBuilder sb = new StringBuilder();
-        List<String> vs = new ArrayList<>();
-        
-        for(String c : e.getColumns())
-        {
-            vs.add(e.getItem(c).toQueryString());
-        }
-        
-        sb.append("INSERT INTO ").append(table).append(" values (");
-        sb.append(String.join(", ", vs)).append(")");
-        
-        return sb.toString();
-    }
-    
-    private String updateEntry(String table, Entry e1, Entry e2)
-    {
-        assert e1 != null : "Vorbedingung verletzt: e1 != null";
-        assert e2 != null : "Vorbedingung verletzt: e2 != null";
-        assert e1.getColumns().equals(e2.getColumns()) : "Precondition violated: e1.getColumns().equals(e2.getColumns())";
-        
-        StringBuilder sb = new StringBuilder();
-        List<String> rs = new ArrayList<>();
-        List<String> ts = new ArrayList<>();
-        
-        for(String c : e1.getColumns())
-        {
-            rs.add(c + " = " + e2.getItem(c).toQueryString());
-            ts.add(c + " = " + e1.getItem(c).toQueryString());
-        }
-        
-        sb.append("UPDATE ").append(table).append(" SET ");
-        sb.append(String.join(", ", rs)).append(" WHERE ");
-        sb.append(String.join(" AND ", ts));
-        
-        return sb.toString();
-    }
-    
-    private void update(Entry e1, Entry e2)
-    {
-        final String table = ui_.getSelected();
-        final String query = e1 == null ? insertInto(table, e2) : updateEntry(table, e1, e2);
-
-        service_.request(connection_, (Connection c) -> c.execute(query)).onDone(f -> evaluateAndReload(f, table));
-    }
-    
     private void registerHandlers()
     {
         ui_.registerAdd(e -> add());
@@ -184,7 +130,7 @@ public class Connected
         ui_.registerSelect(s -> select(s));
         
         filters_.registerOnClose(() -> reload());
-        edit_.registerOnClose((e1, e2) -> update(e1, e2));
+        edit_.registerOnClose(() -> select(ui_.getSelected()));
     }
     
     // # ----------------------------------------------------------------------
@@ -204,7 +150,7 @@ public class Connected
         service_.request(id, (Connection c) -> doLoadRelationTable(c)).onDone(f -> evaluateRelationTable(f));
     }
     
-    private void evaluate(VoidTask t)
+    public static void evaluate(VoidTask t)
     {
         try
         {
@@ -213,7 +159,8 @@ public class Connected
         catch(ConnectionFailureException e)
         {
             e.printStackTrace();
-            Alert.DisplayAlert(AlertType.ERROR, "Failure", null, "Query failed.");
+//            Alert.DisplayAlert(AlertType.ERROR, "Failure", "Query failed.", e.getLocalizedMessage());
+            Alert.ShowExceptionError(Strings.ERROR_CONNECTIVITY, e.getLocalizedMessage(), e);
         }
         catch(RuntimeException e)
         {
@@ -263,20 +210,11 @@ public class Connected
 
     // # ----------------------------------------------------------------------
     
-    private void evaluateRelationTable(Future<Relation> f)
+    private void evaluateRelationTable(Future<List<String>> f)
     {
         evaluate(() ->
         {
-            List<String> tbllist = new ArrayList<>();
-            Relation tables = f.get();
-            String id = tables.getColumns().get(0);
-            
-            for(Entry r : tables)
-            {
-                tbllist.add(r.getValue(id).get());
-            }
-            
-            tables_ = new TableManager(tbllist);
+            tables_ = new TableManager(f.get());
             
             ui_.setSelection(tables_.getNames());
             
@@ -285,9 +223,27 @@ public class Connected
         });
     }
     
-    private Relation doLoadRelationTable(Connection c) throws ConnectionFailureException
+    private List<String> doLoadRelationTable(Connection c) throws ConnectionFailureException
     {
-        return c.query("SELECT TABLE_NAME FROM USER_TABLES");
+        Relation tables = c.query("SELECT TABLE_NAME FROM USER_TABLES");
+        Relation views = c.query("SELECT VIEW_NAME FROM USER_VIEWS");
+        List<String> tbllist = new ArrayList<>();
+        
+        String id = tables.getColumns().get(0);
+        
+        for(Entry r : tables)
+        {
+            tbllist.add(r.getValue(id).get());
+        }
+        
+        id = views.getColumns().get(0);
+        
+        for(Entry r : views)
+        {
+            tbllist.add(r.getValue(id).get());
+        }
+        
+        return tbllist;
     }
 
     // # ----------------------------------------------------------------------

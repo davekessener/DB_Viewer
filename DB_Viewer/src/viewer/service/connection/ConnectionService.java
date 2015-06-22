@@ -28,16 +28,9 @@ public class ConnectionService implements AutoCloseable
     
     public boolean doTestConnection(URL url, String u, String p) throws ConnectionFailureException
     {
-        Connection c = new Connection(url, u, p);
-        
-        if(c.connected())
+        try(Connection c = new Connection(url, u, p))
         {
-            c.disconnect();
-            return true;
-        }
-        else
-        {
-            return false;
+            return c.connected();
         }
     }
     
@@ -46,6 +39,7 @@ public class ConnectionService implements AutoCloseable
         return request(() -> doEstablishConnection(name, url, u, p));
     }
     
+    @SuppressWarnings("resource")
     public String doEstablishConnection(String name, URL url, String u, String p) throws ConnectionFailureException
     {
         Connection c = new Connection(url, u, p);

@@ -21,7 +21,7 @@ import viewer.materials.sql.Varchar;
 import viewer.materials.sql.Number;
 import viewer.service.Logger;
 
-public class Connection
+public class Connection implements AutoCloseable
 {
     private static int ConnectionID = 0;
     
@@ -72,6 +72,12 @@ public class Connection
             throw new ConnectionFailureException(GetFailure(e.getErrorCode()));
         }
     }
+
+    @Override
+    public void close()
+    {
+        disconnect();
+    }
     
     public synchronized void disconnect()
     {
@@ -92,7 +98,7 @@ public class Connection
     
     public synchronized void execute(String query) throws ConnectionFailureException
     {
-        String id = query.split("[ \t]+")[0];
+        String id = query.split("[ \t]+")[0].toUpperCase();
         
         if(QUERIES.contains(id)) query(query);
         else if(UPDATES.contains(id)) modify(query);
@@ -107,7 +113,7 @@ public class Connection
             
             for(String q : queries)
             {
-                assert UPDATES.contains(q.split("[ \t]+")[0]) : "Precondition violated: query is UPDATE";
+                assert UPDATES.contains(q.split("[ \t]+")[0].toUpperCase()) : "Precondition violated: query is UPDATE";
                 
                 s.addBatch(q);
             }
@@ -123,7 +129,7 @@ public class Connection
     public synchronized Relation query(String query) throws ConnectionFailureException
     {
         assert connected() : "Precondition violated: connected()";
-        assert QUERIES.contains(query.split("[ \t]+")[0]) : "Precondition violated: QUERIES.contains(query)";
+        assert QUERIES.contains(query.split("[ \t]+")[0].toUpperCase()) : "Precondition violated: QUERIES.contains(query)";
         
         Logger.Log("Querying connection %d for \"%s\"", id_, query);
         
@@ -144,7 +150,7 @@ public class Connection
     public synchronized int modify(String query) throws ConnectionFailureException
     {
         assert connected() : "Precondition violated: connected()";
-        assert UPDATES.contains(query.split("[ \t]+")[0]) : "Precondition violated: UPDATES.contains(query)";
+        assert UPDATES.contains(query.split("[ \t]+")[0].toUpperCase()) : "Precondition violated: UPDATES.contains(query)";
 
         Logger.Log("Querying connection %d for \"%s\"", id_, query);
         
@@ -231,7 +237,7 @@ public class Connection
     }
     
     private static final List<String> QUERIES = Arrays.asList(new String[] {"SELECT"});
-    private static final List<String> UPDATES = Arrays.asList(new String[] {"UPDATE", "INSERT", "DELETE", "DROP", "CREATE"});
+    private static final List<String> UPDATES = Arrays.asList(new String[] {"UPDATE", "INSERT", "DELETE", "DROP", "CREATE", "ALTER"});
     
     static
     {
