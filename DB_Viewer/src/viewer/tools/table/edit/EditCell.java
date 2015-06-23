@@ -17,9 +17,9 @@ public class EditCell<T> extends TableCell<T, String>
             createTextField();
             setText(null);
             setGraphic(text_);
-            
-            text_.selectAll();
         }
+        
+        text_.selectAll();
     }
 
     @Override

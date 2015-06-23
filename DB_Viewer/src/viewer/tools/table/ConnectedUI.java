@@ -41,7 +41,7 @@ import javafx.scene.layout.TilePane;
 
 public class ConnectedUI
 {
-    private Node pane_;
+    private Node pane_, buttonpane_;
     private ComboBox<String> select_;
     private Button add_, edit_, remove_;
     private Button disconnect_;
@@ -120,7 +120,7 @@ public class ConnectedUI
         clear();
     }
 
-    public void load(List<String> cs, ObservableList<Entry> rs, ObservableList<Filter> fs)
+    public void load(List<String> cs, ObservableList<Entry> rs, ObservableList<Filter> fs, boolean editable)
     {
         FilteredList<Entry> fl = new FilteredList<>(rs);
         SortedList<Entry> l = new SortedList<>(fl);
@@ -153,6 +153,7 @@ public class ConnectedUI
         }
         
         setEnabled(true);
+        buttonpane_.setDisable(!editable);
     }
     
     public void setEnabled(boolean f)
@@ -185,6 +186,14 @@ public class ConnectedUI
         
         remove_.disableProperty().bind(table_.getSelectionModel().selectedItemProperty().isNull());
         edit_.disableProperty().bind(table_.getSelectionModel().selectedItemProperty().isNull());
+        
+        table_.setOnMouseClicked(e ->
+        {
+            if(!e.isShiftDown() && !e.isAltDown() && !e.isControlDown() && e.getClickCount() == 2)
+            {
+                edit_.onActionProperty().get().handle(new ActionEvent());
+            }
+        });
     }
     
     private Node createUI()
@@ -305,7 +314,7 @@ public class ConnectedUI
         
         active_.add(pane);
 
-        return pane;
+        return buttonpane_ = pane;
     }
 
     public static interface EditHandler { void act(Entry e); }

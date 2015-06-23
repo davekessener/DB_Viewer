@@ -11,6 +11,14 @@ public class Table
     private Relation relation_;
     private ObservableList<Entry> rows_;
     private ObservableList<Filter> filters_ = FXCollections.observableArrayList();
+    private boolean editable_;
+    
+    public Table(boolean editable)
+    {
+        this.editable_ = editable;
+    }
+    
+    public boolean isEditable() { return editable_; }
     
     public void update(Relation r)
     {

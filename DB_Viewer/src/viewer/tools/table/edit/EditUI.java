@@ -21,7 +21,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.TilePane;
 
@@ -114,7 +113,7 @@ public class EditUI
         nameCol.setCellValueFactory(p -> p.getValue().nameProperty());
         valueCol.setCellValueFactory(p -> p.getValue().valueProperty());
 
-        valueCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        valueCol.setCellFactory(p -> new EditCell<Attribute>());
         
         nameCol.setSortable(false);
         valueCol.setSortable(false);

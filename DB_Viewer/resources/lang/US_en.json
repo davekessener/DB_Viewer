@@ -25,6 +25,8 @@
         "defaultname" : "Connection",
         "tables" : "User tables:",
         "filters" : "Filters",
+        "confirmation" : "Confirm",
+        "delete" : "Do you really want to delete the selected rows?",
         "table" :
         {
             "selectall" : "Select all",

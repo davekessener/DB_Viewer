@@ -1,7 +1,9 @@
 package viewer.tools.table;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javafx.scene.Node;
 import viewer.exception.ConnectionFailureException;
@@ -82,7 +84,7 @@ public class Connected
             queries.add("DELETE FROM " + t + " WHERE " + String.join(" AND ", fs));
         }
         
-        Alert.DisplayYesNoDialog("Cornifm", "rly dlete?", r ->
+        Alert.DisplayYesNoDialog(Strings.UI_CONFIRMATION, Strings.UI_DELETE, r ->
         {
             if(r == Alert.Response.YES)
             {
@@ -117,7 +119,7 @@ public class Connected
     {
         Table t = tables_.getTable(ui_.getSelected());
         
-        ui_.load(t.getColumns(), t.getRows(), t.getFilters());
+        ui_.load(t.getColumns(), t.getRows(), t.getFilters(), t.isEditable());
     }
     
     private void registerHandlers()
@@ -196,7 +198,7 @@ public class Connected
             tables_.updateTable(id, r);
             Table t = tables_.getTable(id);
             
-            ui_.load(t.getColumns(), t.getRows(), t.getFilters());
+            ui_.load(t.getColumns(), t.getRows(), t.getFilters(), t.isEditable());
             
             indicator_.setInfo(null);
             indicator_.setEnabled(true);
@@ -210,7 +212,7 @@ public class Connected
 
     // # ----------------------------------------------------------------------
     
-    private void evaluateRelationTable(Future<List<String>> f)
+    private void evaluateRelationTable(Future<Map<String, Boolean>> f)
     {
         evaluate(() ->
         {
@@ -223,27 +225,27 @@ public class Connected
         });
     }
     
-    private List<String> doLoadRelationTable(Connection c) throws ConnectionFailureException
+    private Map<String, Boolean> doLoadRelationTable(Connection c) throws ConnectionFailureException
     {
         Relation tables = c.query("SELECT TABLE_NAME FROM USER_TABLES");
         Relation views = c.query("SELECT VIEW_NAME FROM USER_VIEWS");
-        List<String> tbllist = new ArrayList<>();
+        Map<String, Boolean> tbl = new HashMap<>();
         
         String id = tables.getColumns().get(0);
         
         for(Entry r : tables)
         {
-            tbllist.add(r.getValue(id).get());
+            tbl.put(r.getValue(id).get(), true);
         }
         
         id = views.getColumns().get(0);
         
         for(Entry r : views)
         {
-            tbllist.add(r.getValue(id).get());
+            tbl.put(r.getValue(id).get(), false);
         }
         
-        return tbllist;
+        return tbl;
     }
 
     // # ----------------------------------------------------------------------

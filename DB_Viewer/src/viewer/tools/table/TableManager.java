@@ -14,11 +14,13 @@ public class TableManager
 {
     private List<String> names_;
     private Map<String, Table> tables_;
+    private Map<String, Boolean> editable_;
     
-    public TableManager(List<String> names)
+    public TableManager(Map<String, Boolean> names)
     {
-        this.names_ = new ArrayList<>(names);
+        this.names_ = new ArrayList<>(names.keySet());
         this.tables_ = new HashMap<>();
+        this.editable_ = new HashMap<>(names);
     }
     
     public List<String> getNames()
@@ -42,7 +44,7 @@ public class TableManager
         
         if(!tables_.containsKey(id))
         {
-            tables_.put(id, new Table());
+            tables_.put(id, new Table(editable_.get(id)));
         }
         
         tables_.get(id).update(relation);

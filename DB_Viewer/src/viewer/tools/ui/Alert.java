@@ -69,7 +69,7 @@ public class Alert
     
     public static void DisplayYesNoDialog(String title, String msg, ConfirmationHook h)
     {
-        h.decide(RESULTS.get(Dialogs.create().title(title).message(msg).showConfirm()));
+        h.decide(RESULTS.get(Dialogs.create().title(Literals.Get(title)).message(Literals.Get(msg)).showConfirm()));
     }
     
     public static enum AlertType

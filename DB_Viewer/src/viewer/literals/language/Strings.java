@@ -73,6 +73,8 @@ public class Strings
     public static final String UI_TABLE_SELECTNONE = "ui.table.selectnone";
     public static final String UI_TABLES = "ui.tables";
     public static final String UI_TITLE = "ui.title";
+    public static final String UI_CONFIRMATION = "ui.confirmation";
+    public static final String UI_DELETE = "ui.delete";
     
     public static final String SQL_SOLUTION = "SELECT " +
             "Ehemalige.ID AS ID, Ehemalige.Geburtsname AS Vorname, Ehemalige.Nachname AS Nachname, " +
